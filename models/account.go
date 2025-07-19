@@ -8,5 +8,5 @@ type Account struct {
 	User                 User          `json:"-"`
 	SentTransactions     []Transaction `json:"sent_transactions,omitempty" gorm:"foreignKey:SenderAccountId"`
 	ReceivedTransactions []Transaction `json:"received_transactions,omitempty" gorm:"foreignKey:ReceiverAccountId"`
-	QRCodes              []QrCode      `json:"qr_codes,omitempty" gorm:"foreignKey:AccountID"`
+	QRCodes              []QrCode      `json:"qr_codes,omitempty" gorm:"foreignKey:ReceiverAccountID"`
 }

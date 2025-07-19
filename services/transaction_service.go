@@ -2,7 +2,6 @@ package services
 
 import (
 	"errors"
-	"fmt"
 	"gopay-clone/config"
 	"gopay-clone/models"
 
@@ -25,7 +24,6 @@ func (s *TransactionService) CreateTransaction(transaction *models.Transaction) 
 			return err
 		}
 		if err := tx.First(&receiver, transaction.ReceiverAccountId).Error; err != nil {
-			fmt.Println(err)
 			return err
 		}
 		if sender.Balance < transaction.Amount {

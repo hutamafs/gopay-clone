@@ -18,6 +18,7 @@ func setupRoutes(e *echo.Echo, db *config.Database) {
 	routes.RegisterUserRoutes(api, db)
 	routes.RegisterAccountRoutes(api, db)
 	routes.RegisterTransactionRoutes(api, db)
+	routes.RegisterQRRoutes(api, db)
 }
 
 func main() {

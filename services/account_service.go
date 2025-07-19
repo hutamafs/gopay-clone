@@ -25,7 +25,11 @@ func (s *AccountService) GetAccountsByUser(userId uint) ([]models.Account, error
 
 func (s *AccountService) GetAccountById(id uint) (*models.Account, error) {
 	var account models.Account
-	return &account, s.db.First(&account, id).Error
+	return &account, s.db.
+		Preload("SentTransactions").
+		Preload("ReceivedTransactions").
+		First(&account, id).
+		Error
 }
 
 func (s *AccountService) GetBalanceByAccountId(accountId uint) (*float64, error) {
