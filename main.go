@@ -9,14 +9,14 @@ import (
 	"net/http"
 
 	"github.com/labstack/echo"
-	"gorm.io/gorm"
 )
 
-func setupRoutes(e *echo.Echo, db *gorm.DB) {
+func setupRoutes(e *echo.Echo, db *config.Database) {
 	api := e.Group("api/v1")
 
 	// register route groups
 	routes.RegisterUserRoutes(api, db)
+	routes.RegisterAccountRoutes(api, db)
 }
 
 func main() {
@@ -44,7 +44,7 @@ func main() {
 		})
 	})
 
-	setupRoutes(e, db.DB)
+	setupRoutes(e, db)
 
 	// Start server
 	fmt.Println("Server starting on :8080")

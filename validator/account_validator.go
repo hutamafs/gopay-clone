@@ -2,7 +2,6 @@ package validator
 
 import (
 	"errors"
-	"gopay-clone/models"
 	"strings"
 )
 
@@ -13,11 +12,8 @@ type CreateAccountRequest struct {
 }
 
 type UpdateAccountRequest struct {
-	Name                 string               `json:"name" gorm:"not null"`
-	Balance              float64              `json:"balance" gorm:"not null"`
-	SentTransactions     []models.Transaction `json:"sent_transactions,omitempty" gorm:"foreignKey:SenderAccountId"`
-	ReceivedTransactions []models.Transaction `json:"received_transactions,omitempty" gorm:"foreignKey:ReceiverAccountId"`
-	QRCodes              []models.QrCode      `json:"qr_codes,omitempty" gorm:"foreignKey:AccountID"`
+	Name    string  `json:"name" gorm:"not null"`
+	Balance float64 `json:"balance" gorm:"not null"`
 }
 
 func ValidateCreateAccount(req *CreateAccountRequest) error {
@@ -36,7 +32,7 @@ func ValidateCreateAccount(req *CreateAccountRequest) error {
 }
 
 func ValidateUpdateAccount(req *UpdateAccountRequest) error {
-	if req.Name != "" && strings.TrimSpace(req.Name) == "" {
+	if strings.TrimSpace(req.Name) == "" {
 		return errors.New("account name cannot be empty")
 	}
 	if req.Balance < 0 {

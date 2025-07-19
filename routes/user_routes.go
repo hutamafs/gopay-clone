@@ -1,16 +1,17 @@
 package routes
 
 import (
+	"gopay-clone/config"
 	"gopay-clone/handlers"
 	"gopay-clone/services"
 
 	"github.com/labstack/echo"
-	"gorm.io/gorm"
 )
 
-func RegisterUserRoutes(api *echo.Group, db *gorm.DB) {
+func RegisterUserRoutes(api *echo.Group, db *config.Database) {
 	userService := services.NewUserService(db)
-	userHandler := handlers.NewUserHandler(userService)
+	accountService := services.NewAccountService(db)
+	userHandler := handlers.NewUserHandler(userService, accountService)
 
 	users := api.Group("/users")
 	{
@@ -19,5 +20,7 @@ func RegisterUserRoutes(api *echo.Group, db *gorm.DB) {
 		users.GET("/:id", userHandler.GetUserById)
 		users.PUT("/:id", userHandler.UpdateUser)
 		users.DELETE("/:id", userHandler.DeleteUser)
+
+		users.GET("/:user_id/accounts", userHandler.GetAccountsByUser)
 	}
 }

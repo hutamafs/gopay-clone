@@ -1,16 +1,15 @@
 package services
 
 import (
+	"gopay-clone/config"
 	"gopay-clone/models"
-
-	"gorm.io/gorm"
 )
 
 type UserService struct {
-	db *gorm.DB
+	db *config.Database
 }
 
-func NewUserService(db *gorm.DB) *UserService {
+func NewUserService(db *config.Database) *UserService {
 	return &UserService{db: db}
 }
 
@@ -26,7 +25,11 @@ func (s *UserService) GetUsers() ([]models.User, error) {
 
 func (s *UserService) GetUserById(id uint) (*models.User, error) {
 	var user models.User
-	return &user, s.db.First(&user, id).Error
+	result := s.db.
+		Preload("Accounts").
+		Preload("Contacts").
+		First(&user, id)
+	return &user, result.Error
 }
 
 func (s *UserService) UpdateUser(user *models.User) error {
