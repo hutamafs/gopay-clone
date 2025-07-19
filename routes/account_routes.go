@@ -10,7 +10,8 @@ import (
 
 func RegisterAccountRoutes(api *echo.Group, db *config.Database) {
 	accountService := services.NewAccountService(db)
-	accountHandler := handlers.NewAccountHandler(accountService)
+	transactionService := services.NewTransactionService(db)
+	accountHandler := handlers.NewAccountHandler(accountService, transactionService)
 
 	accounts := api.Group("/accounts")
 	{
@@ -18,5 +19,6 @@ func RegisterAccountRoutes(api *echo.Group, db *config.Database) {
 		accounts.GET("/:account_id/balance", accountHandler.GetBalanceByAccountId)
 		accounts.PUT("/:account_id", accountHandler.UpdateAccount)
 		accounts.GET("/:account_id/detail", accountHandler.GetAccountDetail)
+		accounts.GET("/:account_id/transactions", accountHandler.GetTransactionByAccounts)
 	}
 }

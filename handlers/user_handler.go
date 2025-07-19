@@ -74,17 +74,19 @@ func (h *UserHandler) UpdateUser(c echo.Context) error {
 		return utils.NotFoundResponse(c, "id")
 	}
 	var req validator.UpdateUserRequest
-	utils.BindAndValidate(c, &req, validator.ValidateUpdateUser)
-	updatedUser := &models.User{
-		Name:     req.Name,
-		Email:    user.Email,
-		Password: req.Password,
+	if err := utils.BindAndValidate(c, &req, validator.ValidateUpdateUser); err != nil {
+		return err
 	}
-	updatedUser.ID = uint(id)
-	if err := h.userService.UpdateUser(updatedUser); err != nil {
+	hashedPassword, err := utils.HashPassword(req.Password)
+	if err != nil {
+		return err
+	}
+	user.Name = req.Name
+	user.Password = hashedPassword
+	if err := h.userService.UpdateUser(user); err != nil {
 		return utils.InternalErrorResponse(c, err)
 	}
-	return utils.SuccessResponse(c, http.StatusOK, "User updated successfully", updatedUser)
+	return utils.SuccessResponse(c, http.StatusOK, "User updated successfully", user)
 }
 
 func (h *UserHandler) DeleteUser(c echo.Context) error {

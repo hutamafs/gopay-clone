@@ -34,5 +34,5 @@ func (s *AccountService) GetBalanceByAccountId(accountId uint) (*float64, error)
 }
 
 func (s *AccountService) UpdateAccount(account *models.Account) error {
-	return s.db.Save(&account).Error
+	return s.db.Model(&account).Select("name").Updates(account).Error
 }

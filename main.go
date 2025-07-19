@@ -17,6 +17,7 @@ func setupRoutes(e *echo.Echo, db *config.Database) {
 	// register route groups
 	routes.RegisterUserRoutes(api, db)
 	routes.RegisterAccountRoutes(api, db)
+	routes.RegisterTransactionRoutes(api, db)
 }
 
 func main() {

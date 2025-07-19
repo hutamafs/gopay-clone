@@ -12,11 +12,12 @@ import (
 )
 
 type AccountHandler struct {
-	accountService *services.AccountService
+	accountService     *services.AccountService
+	transactionService *services.TransactionService
 }
 
-func NewAccountHandler(accountService *services.AccountService) *AccountHandler {
-	return &AccountHandler{accountService: accountService}
+func NewAccountHandler(accountService *services.AccountService, transactionService *services.TransactionService) *AccountHandler {
+	return &AccountHandler{accountService: accountService, transactionService: transactionService}
 }
 
 func (h *AccountHandler) CreateAccount(c echo.Context) error {
@@ -66,16 +67,11 @@ func (h *AccountHandler) UpdateAccount(c echo.Context) error {
 	if err := utils.BindAndValidate(c, &req, validator.ValidateUpdateAccount); err != nil {
 		return utils.ValidationErrorResponse(c, err)
 	}
-	updateAccount := &models.Account{
-		Name:    req.Name,
-		Balance: req.Balance,
-		UserId:  account.UserId,
-	}
-	updateAccount.ID = uint(accountId)
-	if err := h.accountService.UpdateAccount(updateAccount); err != nil {
+	account.Name = req.Name
+	if err := h.accountService.UpdateAccount(account); err != nil {
 		return utils.InternalErrorResponse(c, err)
 	}
-	return utils.SuccessResponse(c, http.StatusOK, "Account updated successfully", updateAccount)
+	return utils.SuccessResponse(c, http.StatusOK, "Account updated successfully", account)
 }
 
 func (h *AccountHandler) GetAccountDetail(c echo.Context) error {
@@ -89,4 +85,17 @@ func (h *AccountHandler) GetAccountDetail(c echo.Context) error {
 		return utils.NotFoundResponse(c, "id")
 	}
 	return utils.SuccessResponse(c, http.StatusOK, "Account detail fetched successfully", user)
+}
+
+func (h *AccountHandler) GetTransactionByAccounts(c echo.Context) error {
+	accountId, err := strconv.Atoi(c.Param("account_id"))
+	if err != nil {
+		return utils.ValidationErrorResponse(c, err)
+	}
+
+	transactions, err := h.transactionService.GetTransactionsByAccount(uint(accountId))
+	if err != nil {
+		return utils.NotFoundResponse(c, "user id")
+	}
+	return utils.SuccessResponse(c, http.StatusOK, "Transactions for account fetched successfully", transactions)
 }

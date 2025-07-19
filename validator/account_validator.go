@@ -12,8 +12,7 @@ type CreateAccountRequest struct {
 }
 
 type UpdateAccountRequest struct {
-	Name    string  `json:"name" gorm:"not null"`
-	Balance float64 `json:"balance" gorm:"not null"`
+	Name string `json:"name" gorm:"not null"`
 }
 
 func ValidateCreateAccount(req *CreateAccountRequest) error {
@@ -34,9 +33,6 @@ func ValidateCreateAccount(req *CreateAccountRequest) error {
 func ValidateUpdateAccount(req *UpdateAccountRequest) error {
 	if strings.TrimSpace(req.Name) == "" {
 		return errors.New("account name cannot be empty")
-	}
-	if req.Balance < 0 {
-		return errors.New("balance must be greater than 0")
 	}
 
 	return nil
