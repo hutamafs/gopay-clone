@@ -4,6 +4,8 @@ type User struct {
 	BaseModel
 	Name     string    `json:"name" gorm:"not null"`
 	Email    string    `json:"email" gorm:"unique;not null"`
+	Phone    int       `json:"phone"`
+	Type     string    `json:"user_type" gorm:"default:user"`
 	Password string    `json:"-"`
 	Accounts []Account `json:"accounts,omitempty"` // we dont have to put gorm fk here because we haev UserId at account, so gorm will assume it is the fk
 

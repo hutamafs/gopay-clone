@@ -14,7 +14,28 @@ func NewUserService(db *config.Database) *UserService {
 }
 
 func (s *UserService) CreateUser(user *models.User) error {
-	return s.db.Create(user).Error
+	if err := s.db.Create(user).Error; err != nil {
+		return err
+	}
+	defaultAccounts := []models.Account{
+		{
+			Name:        "main wallet",
+			AccountType: "main",
+			UserId:      user.ID,
+		},
+		{
+			Name:        "points",
+			AccountType: "gopay_points",
+			UserId:      user.ID,
+		},
+	}
+	for _, account := range defaultAccounts {
+		if err := s.db.Create(&account).Error; err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
 
 func (s *UserService) GetUsers() ([]models.User, error) {

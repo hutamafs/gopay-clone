@@ -10,51 +10,85 @@ type CreateUserRequest struct {
 	Name     string `json:"name" validate:"required"`
 	Email    string `json:"email" validate:"required,email"`
 	Password string `json:"password" validate:"required,min=6"`
+	Phone    string `json:"phone" validate:"required,len=10"`
+	Type     string `json:"user_type"`
 }
 
 type UpdateUserRequest struct {
 	Name     string `json:"name" validate:"omitempty"`
 	Password string `json:"password" validate:"omitempty,min=6"`
+	Phone    string `json:"phone" validate:"omitempty,len=10"`
 }
 
 func ValidateCreateUser(req *CreateUserRequest) error {
-	if strings.TrimSpace(req.Name) == "" {
-		return errors.New("name is required")
+	if err := validateName(req.Name); err != nil {
+		return err
 	}
-
-	if strings.TrimSpace(req.Email) == "" {
-		return errors.New("email is required")
+	if err := validateEmail(req.Email); err != nil {
+		return err
 	}
-
-	if !isValidEmail(req.Email) {
-		return errors.New("invalid email format")
+	if err := validatePassword(req.Password, true); err != nil {
+		return err
 	}
-
-	if strings.TrimSpace(req.Password) == "" {
-		return errors.New("password is required")
+	if err := validatePhone(req.Phone); err != nil {
+		return err
 	}
-
-	if len(req.Password) < 6 {
-		return errors.New("password must be at least 6 characters")
-	}
-
 	return nil
 }
 
 func ValidateUpdateUser(req *UpdateUserRequest) error {
-	if req.Name != "" && strings.TrimSpace(req.Name) == "" {
-		return errors.New("name cannot be empty")
+	if req.Name != "" {
+		if err := validateName(req.Name); err != nil {
+			return err
+		}
 	}
-
-	if req.Password != "" && len(req.Password) < 6 {
-		return errors.New("password must be at least 6 characters")
+	if req.Password != "" {
+		if err := validatePassword(req.Password, false); err != nil {
+			return err
+		}
 	}
-
+	if req.Phone != "" {
+		if err := validatePhone(req.Phone); err != nil {
+			return err
+		}
+	}
 	return nil
 }
 
-func isValidEmail(email string) bool {
-	pattern := `^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`
-	regex := regexp.MustCompile(pattern)
-	return regex.MatchString(email)
+func validateName(name string) error {
+	if strings.TrimSpace(name) == "" {
+		return errors.New("name is required")
+	}
+	return nil
+}
+
+func validateEmail(email string) error {
+	if strings.TrimSpace(email) == "" {
+		return errors.New("email is required")
+	}
+	if !regexp.MustCompile(`^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$`).MatchString(email) {
+		return errors.New("invalid email format")
+	}
+	return nil
+}
+
+func validatePassword(pw string, required bool) error {
+	if required && strings.TrimSpace(pw) == "" {
+		return errors.New("password is required")
+	}
+	if len(pw) < 6 {
+		return errors.New("password must be at least 6 characters")
+	}
+	return nil
+}
+
+func validatePhone(phone string) error {
+	trimmed := strings.TrimSpace(phone)
+	if len(trimmed) != 10 {
+		return errors.New("phone must be exactly 10 digits")
+	}
+	if !regexp.MustCompile(`^\d{10}$`).MatchString(trimmed) {
+		return errors.New("phone must be numeric and 10 digits")
+	}
+	return nil
 }

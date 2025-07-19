@@ -29,6 +29,8 @@ func (h *TransactionHandler) CreateTransaction(c echo.Context) error {
 		Amount:            req.Amount,
 		SenderAccountId:   req.SenderAccountId,
 		ReceiverAccountId: req.ReceiverAccountId,
+		Category:          req.Category,
+		Type:              req.Type,
 	}
 
 	if err := h.transactionService.CreateTransaction(transaction); err != nil {

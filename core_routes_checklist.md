@@ -27,8 +27,8 @@
 
 ## 4. 📲 QR Code Payment
 
-- [ ] `POST /qr/generate` - Generate a QR code to receive payment
-- [ ] `POST /qr/scan` - Scan QR code and process payment
+- [x] `POST /qr/generate` - Generate a QR code to receive payment
+- [x] `PUT /qr/scan` - Scan QR code and process payment
 
 ---
 
