@@ -31,4 +31,7 @@ type Transaction struct {
 	Status            string              `json:"status" gorm:"default:pending"`
 	QrCodeID          *uint               `json:"qr_code_id,omitempty"`
 	QrCode            *QrCode             `json:"qr_code"`
+	Description       string              `json:"description,omitempty"`
+	ServiceType       string              `json:"service_type" gorm:"not null"` // ride order or food order
+	ServiceID         uint                `json:"service_id" gorm:"not null"`   // ride order id or food order id
 }
