@@ -1,31 +1,40 @@
 package main
 
 import (
-	"fmt"
 	"gopay-clone/config"
-	"gopay-clone/middleware"
 	"gopay-clone/models"
 	"gopay-clone/routes"
 	"net/http"
+	"os"
 
-	"github.com/labstack/echo"
+	"github.com/joho/godotenv"
+	echojwt "github.com/labstack/echo-jwt/v4"
+	"github.com/labstack/echo/v4"
 )
 
-func setupRoutes(e *echo.Echo, db *config.Database) {
-	api := e.Group("api/v1")
+func setupRoutes(e *echo.Echo, db *config.Database, secret string) {
+	api := e.Group("/api/v1")
 
-	// register route groups
-	routes.RegisterUserRoutes(api, db)
+	jwtMiddleware := echojwt.WithConfig(echojwt.Config{
+		SigningKey:  []byte(secret),
+		ContextKey:  "user", // This stores the *jwt.Token in context
+		TokenLookup: "header:Authorization:Bearer ",
+	})
+	// Register routes
+	routes.RegisterUserRoutes(api, db, jwtMiddleware)
 	routes.RegisterAccountRoutes(api, db)
 	routes.RegisterTransactionRoutes(api, db)
 	routes.RegisterQRRoutes(api, db)
 }
 
 func main() {
+	_ = godotenv.Load()
+	secret := os.Getenv("JWT_SECRET")
+
 	// database
 	db := config.InitDatabase()
 
-	// migrate user
+	// migrate models
 	db.AutoMigrate(&models.User{})
 	db.AutoMigrate(&models.Account{})
 	db.AutoMigrate(&models.Contact{})
@@ -35,9 +44,6 @@ func main() {
 	// echo
 	e := echo.New()
 
-	// apply middleware
-	middleware.ApplyMiddleware(e)
-
 	// Health check
 	e.GET("/health", func(c echo.Context) error {
 		return c.JSON(http.StatusOK, map[string]string{
@@ -46,9 +52,7 @@ func main() {
 		})
 	})
 
-	setupRoutes(e, db)
+	setupRoutes(e, db, secret)
 
-	// Start server
-	fmt.Println("Server starting on :8080")
 	e.Logger.Fatal(e.Start(":8080"))
 }

@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"errors"
 	"gopay-clone/models"
 	"gopay-clone/services"
 	"gopay-clone/utils"
@@ -8,7 +9,7 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/labstack/echo"
+	"github.com/labstack/echo/v4"
 )
 
 type UserHandler struct {
@@ -43,6 +44,27 @@ func (h *UserHandler) CreateUser(c echo.Context) error {
 	return utils.SuccessResponse(c, http.StatusCreated, "User created successfully", user)
 }
 
+func (h *UserHandler) Login(c echo.Context) error {
+	var req validator.LoginRequest
+	if err := utils.BindAndValidate(c, &req, validator.ValidateLogin); err != nil {
+		return err
+	}
+
+	user := &models.LoggedinUser{
+		Email:    req.Email,
+		Password: req.Password,
+	}
+
+	token, err := h.userService.Login(user)
+	if err != nil {
+		return utils.ValidationErrorResponse(c, err)
+	}
+	// Set the Authorization header with Bearer token
+	c.Response().Header().Set("Authorization", "Bearer "+token)
+
+	return utils.SuccessResponse(c, http.StatusOK, "Login successful", map[string]string{"token": token})
+}
+
 func (h *UserHandler) GetUserById(c echo.Context) error {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
@@ -73,6 +95,11 @@ func (h *UserHandler) UpdateUser(c echo.Context) error {
 	if err != nil {
 		return utils.NotFoundResponse(c, "id")
 	}
+	loggedInUserId := utils.CLaimJwt(c)
+
+	if id != int(loggedInUserId) {
+		return utils.ForbiddenResponse(c, errors.New("unauthorized access"))
+	}
 	var req validator.UpdateUserRequest
 	if err := utils.BindAndValidate(c, &req, validator.ValidateUpdateUser); err != nil {
 		return err
@@ -82,7 +109,9 @@ func (h *UserHandler) UpdateUser(c echo.Context) error {
 		return err
 	}
 	user.Name = req.Name
-	user.Password = hashedPassword
+	if req.Password != "" {
+		user.Password = hashedPassword
+	}
 	if err := h.userService.UpdateUser(user); err != nil {
 		return utils.InternalErrorResponse(c, err)
 	}
@@ -104,6 +133,11 @@ func (h *UserHandler) GetAccountsByUser(c echo.Context) error {
 	userId, err := strconv.Atoi(c.Param("user_id"))
 	if err != nil {
 		return utils.ValidationErrorResponse(c, err)
+	}
+	loggedInUserId := utils.CLaimJwt(c)
+
+	if userId != int(loggedInUserId) {
+		return utils.ForbiddenResponse(c, errors.New("unauthorized access"))
 	}
 
 	accounts, err := h.accountService.GetAccountsByUser(uint(userId))

@@ -5,7 +5,7 @@ import (
 	"gopay-clone/handlers"
 	"gopay-clone/services"
 
-	"github.com/labstack/echo"
+	"github.com/labstack/echo/v4"
 )
 
 func RegisterQRRoutes(api *echo.Group, db *config.Database) {

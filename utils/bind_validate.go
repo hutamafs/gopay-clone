@@ -1,7 +1,7 @@
 package utils
 
 import (
-	"github.com/labstack/echo"
+	"github.com/labstack/echo/v4"
 )
 
 func BindAndValidate[T any](c echo.Context, req *T, validatorFn func(*T) error) error {

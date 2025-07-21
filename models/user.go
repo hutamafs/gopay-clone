@@ -12,3 +12,8 @@ type User struct {
 	// contacts i created
 	Contacts []Contact `json:"contacts,omitempty" gorm:"foreignKey:OwnerID"` // the reason we put it here foreignkey ownerId is because this is an user struct and at contact, we have it as owner, not UserId, so gorm needs precise fk explicitly.
 }
+
+type LoggedinUser struct {
+	Email    string `json:"email" `
+	Password string `json:"-"`
+}
