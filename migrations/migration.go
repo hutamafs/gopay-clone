@@ -7,14 +7,14 @@ import (
 )
 
 func RunMigration(db *config.Database) error {
-	models := []interface{}{
+	models := []any{
 		&models.User{},
 		&models.Account{},
+		&models.DriverProfile{},
+		&models.MerchantProfile{},
 		&models.Contact{},
 		&models.QrCode{},
 		&models.Transaction{},
-		&models.DriverProfile{},
-		&models.MerchantProfile{},
 		&models.MenuItem{},
 		&models.Order{},
 		&models.OrderItem{},

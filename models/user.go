@@ -20,7 +20,7 @@ type User struct {
 	BaseModel
 	Name              string    `json:"name" gorm:"not null"`
 	Email             string    `json:"email" gorm:"unique;not null;index:idx_email"`
-	Phone             string    `json:"phone;index:idx_phone"` // Changed from int to string
+	Phone             string    `json:"phone" gorm:"index:idx_phone"`                          // Changed from int to string
 	Type              UserType  `json:"user_type" gorm:"default:consumer;index:idx_user_type"` // Fixed case
 	Password          string    `json:"-"`
 	ProfilePictureURL string    `json:"profile_picture_url"`
@@ -38,21 +38,21 @@ type DriverProfile struct {
 	LicensePictureURL string      `json:"license_picture_url"`
 	VehiclePlate      string      `json:"vehicle_plate" gorm:"unique; not null"`
 	VehicleType       VehicleType `json:"vehicle_type" gorm:"default:motorcycle;not null;index:idx_vehicle_type"`
-	Rating            float64     `json:"rating" gorm:"default:0;not null"`
-	CurrentLocation   string      `json:"current_location;index:idx_location"`
+	Rating            float64     `json:"rating" gorm:"default:0;not null;"`
+	CurrentLocation   string      `json:"current_location" gorm:"index:idx_location"`
 	Status            string      `json:"status" gorm:"default:offline;index:idx_status"` // offline online suspend
-	IsVerified        bool        `json:"is_verified" gorm:"default:false;index:idx_verified"`
+	IsVerified        bool        `json:"is_verified" gorm:"default:false"`
 }
 
 type MerchantProfile struct {
 	BaseModel
 	UserId          uint       `json:"user_id,omitempty" gorm:"foreignKey:UserId"`
 	User            User       `json:"-"`
-	Location        string     `json:"location" gorm:"not null"`
-	MerchantName    string     `json:"merchant_name" gorm:"not null"`
+	Location        string     `json:"location" gorm:"not null;index:idx_merchant_location"`
+	MerchantName    string     `json:"merchant_name" gorm:"not null;index:idx_merchant_name"`
 	Description     string     `json:"description" gorm:"not null"`
 	MerchantPhone   string     `json:"merchant_phone"`
-	Category        string     `json:"category"`
+	Category        string     `json:"category" gorm:"index:idx_merchant_category"`
 	OpenHour        time.Time  `json:"open_hour"`
 	ClosedHour      time.Time  `json:"closed_hour"`
 	Rating          float64    `json:"rating" gorm:"default:0;not null"`
