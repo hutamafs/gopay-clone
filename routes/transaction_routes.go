@@ -17,5 +17,6 @@ func RegisterTransactionRoutes(api *echo.Group, db *config.Database, jwtMiddlewa
 	{
 		transactions.POST("", transactionHandler.CreateTransaction)
 		transactions.GET("/:transaction_id", transactionHandler.GetTransactionDetail)
+		transactions.PUT("/:transaction_id", transactionHandler.UpdateTransactionDetail)
 	}
 }

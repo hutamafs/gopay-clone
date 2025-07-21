@@ -20,10 +20,10 @@ func (s *TransactionService) CreateTransaction(transaction *models.Transaction) 
 	var sender models.Account
 	var receiver models.Account
 	return s.db.Transaction(func(tx *gorm.DB) error {
-		if err := tx.First(&sender, transaction.SenderAccountId).Error; err != nil {
+		if err := tx.First(&sender, transaction.SenderAccountID).Error; err != nil {
 			return err
 		}
-		if err := tx.First(&receiver, transaction.ReceiverAccountId).Error; err != nil {
+		if err := tx.First(&receiver, transaction.ReceiverAccountID).Error; err != nil {
 			return err
 		}
 		if sender.Balance < transaction.Amount {
@@ -60,4 +60,8 @@ func (s *TransactionService) GetTransactionById(id uint) (*models.Transaction, e
 		Preload("SenderAccount").
 		Preload("ReceiverAccount").
 		First(&transaction, id).Error
+}
+
+func (s *TransactionService) UpdateTransaction(transactionID uint, updates map[string]any) error {
+	return s.db.Model(&models.Transaction{}).Where("id = ?", transactionID).Updates(updates).Error
 }

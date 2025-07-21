@@ -61,9 +61,9 @@ func (s *QRService) ScanQR(qr *models.QrCode, senderAccountId uint) error {
 		}
 		createdTransaction := models.Transaction{
 			Amount:            qr.Amount,
-			SenderAccountId:   sender.ID,
+			SenderAccountID:   sender.ID,
 			SenderAccount:     sender,
-			ReceiverAccountId: receiver.ID,
+			ReceiverAccountID: receiver.ID,
 			ReceiverAccount:   receiver,
 			QrCodeID:          &qr.ID,
 			QrCode:            qr,

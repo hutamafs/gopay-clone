@@ -32,10 +32,12 @@ func (h *UserHandler) CreateUser(c echo.Context) error {
 	}
 
 	user := &models.User{
-		Name:     req.Name,
-		Email:    req.Email,
-		Password: hashPassword,
-		Phone:    req.Phone,
+		Name:              req.Name,
+		Email:             req.Email,
+		Password:          hashPassword,
+		Phone:             req.Phone,
+		ProfilePictureURL: req.ProfilePictureURL,
+		Type:              models.UserType(req.Type),
 	}
 
 	if err := h.userService.CreateUser(user); err != nil {

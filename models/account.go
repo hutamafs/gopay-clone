@@ -14,7 +14,7 @@ type Account struct {
 	UserId               uint          `json:"user_id" gorm:"not null;index:idx_user_id"`
 	AccountType          AccountType   `json:"account_type" gorm:"not null;default:main_balance"`
 	User                 User          `json:"-"`
-	SentTransactions     []Transaction `json:"sent_transactions,omitempty" gorm:"foreignKey:SenderAccountId"`
-	ReceivedTransactions []Transaction `json:"received_transactions,omitempty" gorm:"foreignKey:ReceiverAccountId"`
+	SentTransactions     []Transaction `json:"sent_transactions,omitempty" gorm:"foreignKey:SenderAccountID"`
+	ReceivedTransactions []Transaction `json:"received_transactions,omitempty" gorm:"foreignKey:ReceiverAccountID"`
 	QRCodes              []QrCode      `json:"qr_codes,omitempty" gorm:"foreignKey:ReceiverAccountID"`
 }

@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"errors"
 	"gopay-clone/models"
 	"gopay-clone/services"
 	"gopay-clone/utils"
@@ -27,10 +28,26 @@ func (h *TransactionHandler) CreateTransaction(c echo.Context) error {
 
 	transaction := &models.Transaction{
 		Amount:            req.Amount,
-		SenderAccountId:   req.SenderAccountId,
-		ReceiverAccountId: req.ReceiverAccountId,
-		Category:          req.Category,
-		Type:              req.Type,
+		SenderAccountID:   req.SenderAccountID,
+		ReceiverAccountID: req.ReceiverAccountID,
+		QrCodeID:          req.QrCodeID,
+		ServiceID:         req.ServiceID,
+	}
+
+	if req.Type != nil {
+		transaction.Type = models.TransactionType(*req.Type)
+	}
+	if req.Category != nil {
+		transaction.Category = models.TransactionCategory(*req.Category)
+	}
+	if req.Status != nil {
+		transaction.Status = models.TransactionStatus(*req.Status)
+	}
+	if req.ServiceType != nil {
+		transaction.ServiceType = models.ServiceType(*req.ServiceType)
+	}
+	if req.Description != nil {
+		transaction.Description = *req.Description
 	}
 
 	if err := h.transactionService.CreateTransaction(transaction); err != nil {
@@ -57,4 +74,39 @@ func (h *TransactionHandler) GetTransactionDetail(c echo.Context) error {
 		return utils.NotFoundResponse(c, "transaction id")
 	}
 	return utils.SuccessResponse(c, http.StatusOK, "Transaction fetched successfully", transaction)
+}
+
+func (h *TransactionHandler) UpdateTransactionDetail(c echo.Context) error {
+	id, err := strconv.Atoi(c.Param("transaction_id"))
+	if err != nil {
+		return utils.ValidationErrorResponse(c, err)
+	}
+	loggedInUserId := utils.CLaimJwt(c)
+
+	if loggedInUserId == 0 {
+		return utils.ForbiddenResponse(c, errors.New("unauthorized access"))
+	}
+	var req validator.UpdateTransactionRequest
+	if err := utils.BindAndValidate(c, &req, validator.ValidateUpdateTransaction); err != nil {
+		return err
+	}
+	updates := make(map[string]interface{})
+
+	if req.Status != nil {
+		updates["status"] = *req.Status
+	}
+	if req.QrCodeID != nil {
+		updates["qr_code_id"] = *req.QrCodeID
+	}
+	if req.Category != nil {
+		updates["category"] = *req.Category
+	}
+	if req.Description != nil {
+		updates["description"] = *req.Description
+	}
+
+	if err := h.transactionService.UpdateTransaction(uint(id), updates); err != nil {
+		return utils.InternalErrorResponse(c, err)
+	}
+	return utils.SuccessResponse(c, http.StatusOK, "Transaction updated successfully", updates)
 }

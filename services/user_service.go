@@ -2,6 +2,7 @@ package services
 
 import (
 	"errors"
+	"fmt"
 	"gopay-clone/config"
 	"gopay-clone/models"
 	"gopay-clone/utils"
@@ -16,6 +17,7 @@ func NewUserService(db *config.Database) *UserService {
 }
 
 func (s *UserService) CreateUser(user *models.User) error {
+	fmt.Println(user)
 	if err := s.db.Create(user).Error; err != nil {
 		return err
 	}
@@ -56,9 +58,7 @@ func (s *UserService) GetUserById(id uint) (*models.User, error) {
 }
 
 func (s *UserService) UpdateUser(user *models.User) error {
-	return s.db.Model(user).
-		Select("name", "phone", "password", "profile_picture_url").
-		Updates(user).Error
+	return s.db.Save(user).Error
 }
 
 func (s *UserService) DeleteUser(id uint) error {
