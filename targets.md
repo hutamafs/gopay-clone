@@ -1,4 +1,3 @@
-<<<<<<< Updated upstream
 # 🚀 GoPay Super App Clone - Complete Roadmap
 
 > **Mission**: Build a Gojek/GoPay-style super app for web that showcases full-stack skills, real-time features, and complex business logic for internship applications.
@@ -221,8 +220,8 @@ gopay-clone/
 - [ ] Order food with payment
 - [ ] Book ride with payment
 - [ ] QR payment between users
-- [ ] View transaction history
-=======
+- [ ] # View transaction history
+
 # 🚀 GoPay Super App Clone - Updated 7-Day Roadmap
 
 _Building on your existing Echo backend foundation_
@@ -510,7 +509,7 @@ POST /api/v1/transactions/transfer       // Enhanced with categories
 5. **GoRide Booking** → Map selection, book, pay
 6. **Transaction History** → View categorized transactions
 7. **Analytics** → Show spending insights
->>>>>>> Stashed changes
+   > > > > > > > Stashed changes
 
 **End of Day 7**: ✅ Portfolio-ready GoPay super app clone
 
@@ -630,8 +629,8 @@ _After Day 7, continue development for internship applications_
 - [ ] Accessibility improvements
 - [ ] Advanced animations and micro-interactions
 - [ ] Progressive Web App (PWA) setup
-- [ ] Offline functionality for basic features
-=======
+- [ ] # Offline functionality for basic features
+
 ### 📅 WEEK 2: Real-Time Features + Advanced Services
 
 **Goal**: Add features that impress interviewers
@@ -717,7 +716,7 @@ _After Day 7, continue development for internship applications_
 - [ ] Accessibility improvements
 - [ ] Progressive Web App (PWA)
 - [ ] Offline functionality
->>>>>>> Stashed changes
+  > > > > > > > Stashed changes
 
 ---
 
@@ -845,8 +844,8 @@ _The ultimate internship showcase_
 - [ ] Proper documentation and testing
 - [ ] Deployment and monitoring setup
 
-**Target**: Complete 7-day MVP, then enhance based on internship timeline and requirements. This roadmap scales from "impressive intern project" to "senior developer showcase" depending on how far you take it.
-=======
+# **Target**: Complete 7-day MVP, then enhance based on internship timeline and requirements. This roadmap scales from "impressive intern project" to "senior developer showcase" depending on how far you take it.
+
 ### 📅 MONTH 2: Enterprise & Innovation
 
 #### Advanced Integrations
@@ -928,4 +927,3 @@ _The ultimate internship showcase_
 - Portfolio centerpiece ready
 
 **Target**: Start applying for internships after Week 1 MVP, continue enhancing based on interview feedback and requirements!
->>>>>>> Stashed changes
