@@ -4,9 +4,9 @@
 
 ### Missing Authentication Routes
 
-- [ ] `POST /auth/register` - User registration with auto-wallet creation
-- [ ] `POST /auth/login` - User login with JWT token response
-- [ ] `GET /auth/profile` - Get current user profile (JWT protected)
+- [x] `POST /auth/register` - User registration with auto-wallet creation
+- [x] `POST /auth/login` - User login with JWT token response
+- [x] `GET /auth/profile` - Get current user profile (JWT protected)
 - [ ] `POST /auth/refresh` - Refresh JWT token
 - [ ] `POST /auth/logout` - Logout user (blacklist token)
 

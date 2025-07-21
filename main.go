@@ -2,7 +2,7 @@ package main
 
 import (
 	"gopay-clone/config"
-	"gopay-clone/models"
+	"gopay-clone/migrations"
 	"gopay-clone/routes"
 	"net/http"
 	"os"
@@ -35,11 +35,7 @@ func main() {
 	db := config.InitDatabase()
 
 	// migrate models
-	db.AutoMigrate(&models.User{})
-	db.AutoMigrate(&models.Account{})
-	db.AutoMigrate(&models.Contact{})
-	db.AutoMigrate(&models.QrCode{})
-	db.AutoMigrate(&models.Transaction{})
+	migrations.RunMigration(db)
 
 	// echo
 	e := echo.New()
