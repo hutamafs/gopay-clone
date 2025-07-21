@@ -3,7 +3,7 @@ package utils
 import (
 	"net/http"
 
-	"github.com/labstack/echo"
+	"github.com/labstack/echo/v4"
 )
 
 type APIResponse struct {
@@ -44,4 +44,8 @@ func NotFoundResponse(c echo.Context, resource string) error {
 
 func InternalErrorResponse(c echo.Context, err error) error {
 	return ErrorResponse(c, http.StatusInternalServerError, "Internal server error", err)
+}
+
+func ForbiddenResponse(c echo.Context, err error) error {
+	return ErrorResponse(c, http.StatusForbidden, "Forbidden", err)
 }

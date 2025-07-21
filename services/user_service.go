@@ -1,8 +1,10 @@
 package services
 
 import (
+	"errors"
 	"gopay-clone/config"
 	"gopay-clone/models"
+	"gopay-clone/utils"
 )
 
 type UserService struct {
@@ -59,4 +61,20 @@ func (s *UserService) UpdateUser(user *models.User) error {
 
 func (s *UserService) DeleteUser(id uint) error {
 	return s.db.Delete(&models.User{}, id).Error
+}
+
+func (s *UserService) Login(user *models.LoggedinUser) (string, error) {
+	var foundUser models.User
+	if err := s.db.Where("email = ?", user.Email).First(&foundUser).Error; err != nil {
+		return "", errors.New("email not found")
+	}
+	if !utils.CheckPassword(foundUser.Password, user.Password) {
+		return "", errors.New("invalid password")
+	}
+	tokenString, err := utils.CreateToken(foundUser)
+	if err != nil {
+		return "", errors.New("error creating token")
+	}
+
+	return tokenString, nil
 }

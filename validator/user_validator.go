@@ -20,6 +20,21 @@ type UpdateUserRequest struct {
 	Phone    string `json:"phone" validate:"omitempty,len=10"`
 }
 
+type LoginRequest struct {
+	Email    string `json:"email" validate:"required"`
+	Password string `json:"password" validate:"required"`
+}
+
+func ValidateLogin(req *LoginRequest) error {
+	if err := validateEmail(req.Email); err != nil {
+		return err
+	}
+	if err := validatePassword(req.Password, true); err != nil {
+		return err
+	}
+	return nil
+}
+
 func ValidateCreateUser(req *CreateUserRequest) error {
 	if err := validateName(req.Name); err != nil {
 		return err

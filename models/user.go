@@ -59,3 +59,8 @@ type MerchantProfile struct {
 	MerchantLogoURL string  `json:"merchant_logo_url"`
 	Menu            []MenuItem
 }
+
+type LoggedinUser struct {
+	Email    string `json:"email" `
+	Password string `json:"-"`
+}
