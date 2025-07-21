@@ -56,7 +56,9 @@ func (s *UserService) GetUserById(id uint) (*models.User, error) {
 }
 
 func (s *UserService) UpdateUser(user *models.User) error {
-	return s.db.Model(&user).Select("name", "password", "updated_at").Updates(user).Error
+	return s.db.Model(user).
+		Select("name", "phone", "password", "profile_picture_url").
+		Updates(user).Error
 }
 
 func (s *UserService) DeleteUser(id uint) error {

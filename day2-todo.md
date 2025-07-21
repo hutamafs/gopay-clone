@@ -4,27 +4,27 @@
 
 ### Missing Authentication Routes
 
-- [x] `POST /auth/register` - User registration with auto-wallet creation
-- [x] `POST /auth/login` - User login with JWT token response
-- [x] `GET /auth/profile` - Get current user profile (JWT protected)
+- [x] `POST /public/users` - User registration with auto-wallet creation (in user service)
+- [x] `POST /public/users/login` - User login with JWT token response
+- [x] `GET /users/:id` - Get current user profile (JWT protected) - **serves as auth/profile**
 - [ ] `POST /auth/refresh` - Refresh JWT token
 - [ ] `POST /auth/logout` - Logout user (blacklist token)
 
 ### JWT Middleware Implementation
 
-- [ ] Create JWT middleware function in `middleware/auth.go`
-- [ ] Add JWT token generation utility in `utils/jwt.go`
-- [ ] Add JWT token validation and parsing
-- [ ] Apply JWT middleware to protected routes
+- [x] Add JWT token generation utility in `utils/jwt.go`
+- [x] Add JWT token validation and parsing via echo-jwt
+- [x] Apply JWT middleware to protected routes
+- [x] JWT ownership checks in handlers (via `utils.CLaimJwt()`)
 
 ### Routes That Need JWT Protection
 
-- [ ] `PUT /users/:id` - Update User (only own profile)
-- [ ] `DELETE /users/:id` - Delete User (only own profile)
-- [ ] `GET /users/:user_id/accounts` - Get User Accounts (only own accounts)
-- [ ] All `/accounts/*` routes - Account operations
-- [ ] All `/transactions/*` routes - Transaction operations
-- [ ] All `/qr/*` routes - QR operations
+- [x] `PUT /users/:id` - Update User (only own profile)
+- [x] `GET /users/:id` - Get User Profile (only own profile) - **serves as auth/profile**
+- [x] `GET /users/:user_id/accounts` - Get User Accounts (only own accounts)
+- [x] All `/accounts/*` routes - Account operations
+- [x] All `/transactions/*` routes - Transaction operations
+- [x] All `/qr/*` routes - QR operations
 - [ ] All future `/orders/*` and `/rides/*` routes
 
 ---
@@ -111,18 +111,18 @@
 
 ### Missing Model Migrations
 
-- [ ] Add `models.DriverProfile` to AutoMigrate in main.go
-- [ ] Add `models.MerchantProfile` to AutoMigrate in main.go
-- [ ] Add `models.MenuItem` to AutoMigrate in main.go
-- [ ] Add `models.Order` to AutoMigrate in main.go
-- [ ] Add `models.OrderItem` to AutoMigrate in main.go
-- [ ] Add `models.Ride` to AutoMigrate in main.go
+- [x] Add `models.DriverProfile` to AutoMigrate in main.go
+- [x] Add `models.MerchantProfile` to AutoMigrate in main.go
+- [x] Add `models.MenuItem` to AutoMigrate in main.go
+- [x] Add `models.Order` to AutoMigrate in main.go
+- [x] Add `models.OrderItem` to AutoMigrate in main.go
+- [x] Add `models.Ride` to AutoMigrate in main.go
 
 ### Account System Enhancement
 
-- [ ] Create default accounts on user registration (main_balance + points)
-- [ ] Update account service to handle wallet types properly
-- [ ] Add wallet type validation in account operations
+- [x] Create default accounts on user registration (main_balance + points) - **in user service**
+- [x] Update account service to handle wallet types properly (AccountType enum)
+- [x] Add wallet type validation in account operations
 
 ---
 

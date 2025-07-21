@@ -8,12 +8,13 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-func RegisterAccountRoutes(api *echo.Group, db *config.Database) {
+func RegisterAccountRoutes(api *echo.Group, db *config.Database, jwtMiddleware echo.MiddlewareFunc) {
 	accountService := services.NewAccountService(db)
 	transactionService := services.NewTransactionService(db)
 	accountHandler := handlers.NewAccountHandler(accountService, transactionService)
 
 	accounts := api.Group("/accounts")
+	accounts.Use(jwtMiddleware)
 	{
 		accounts.POST("", accountHandler.CreateAccount)
 		accounts.GET("/:account_id/balance", accountHandler.GetBalanceByAccountId)

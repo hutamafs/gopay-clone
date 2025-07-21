@@ -22,9 +22,9 @@ func setupRoutes(e *echo.Echo, db *config.Database, secret string) {
 	})
 	// Register routes
 	routes.RegisterUserRoutes(api, db, jwtMiddleware)
-	routes.RegisterAccountRoutes(api, db)
-	routes.RegisterTransactionRoutes(api, db)
-	routes.RegisterQRRoutes(api, db)
+	routes.RegisterAccountRoutes(api, db, jwtMiddleware)
+	routes.RegisterTransactionRoutes(api, db, jwtMiddleware)
+	routes.RegisterQRRoutes(api, db, jwtMiddleware)
 }
 
 func main() {

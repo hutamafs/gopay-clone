@@ -35,6 +35,7 @@ func (h *UserHandler) CreateUser(c echo.Context) error {
 		Name:     req.Name,
 		Email:    req.Email,
 		Password: hashPassword,
+		Phone:    req.Phone,
 	}
 
 	if err := h.userService.CreateUser(user); err != nil {
@@ -70,6 +71,10 @@ func (h *UserHandler) GetUserById(c echo.Context) error {
 	if err != nil {
 		return utils.ValidationErrorResponse(c, err)
 	}
+	loggedInUserId := utils.CLaimJwt(c)
+	if id != int(loggedInUserId) {
+		return utils.ForbiddenResponse(c, errors.New("unauthorized access"))
+	}
 
 	user, err := h.userService.GetUserById(uint(id))
 	if err != nil {
@@ -104,14 +109,24 @@ func (h *UserHandler) UpdateUser(c echo.Context) error {
 	if err := utils.BindAndValidate(c, &req, validator.ValidateUpdateUser); err != nil {
 		return err
 	}
-	hashedPassword, err := utils.HashPassword(req.Password)
-	if err != nil {
-		return err
+
+	if req.Name != nil {
+		user.Name = *req.Name
 	}
-	user.Name = req.Name
-	if req.Password != "" {
+	if req.Phone != nil {
+		user.Phone = *req.Phone
+	}
+	if req.Password != nil {
+		hashedPassword, err := utils.HashPassword(*req.Password)
+		if err != nil {
+			return err
+		}
 		user.Password = hashedPassword
 	}
+	if req.ProfilePictureURL != nil {
+		user.ProfilePictureURL = *req.ProfilePictureURL
+	}
+
 	if err := h.userService.UpdateUser(user); err != nil {
 		return utils.InternalErrorResponse(c, err)
 	}

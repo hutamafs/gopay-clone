@@ -7,17 +7,19 @@ import (
 )
 
 type CreateUserRequest struct {
-	Name     string `json:"name" validate:"required"`
-	Email    string `json:"email" validate:"required,email"`
-	Password string `json:"password" validate:"required,min=6"`
-	Phone    string `json:"phone" validate:"required,len=10"`
-	Type     string `json:"user_type"`
+	Name              string `json:"name" validate:"required"`
+	Email             string `json:"email" validate:"required,email"`
+	Password          string `json:"password" validate:"required,min=6"`
+	Phone             string `json:"phone" validate:"required,len=10"`
+	Type              string `json:"user_type"`
+	ProfilePictureURL string `json:"profile_picture_url"`
 }
 
 type UpdateUserRequest struct {
-	Name     string `json:"name" validate:"omitempty"`
-	Password string `json:"password" validate:"omitempty,min=6"`
-	Phone    string `json:"phone" validate:"omitempty,len=10"`
+	Name              *string `json:"name" validate:"omitempty"`
+	Password          *string `json:"password" validate:"omitempty,min=6"`
+	Phone             *string `json:"phone" validate:"omitempty,len=10"`
+	ProfilePictureURL *string `json:"profile_picture_url"`
 }
 
 type LoginRequest struct {
@@ -52,18 +54,18 @@ func ValidateCreateUser(req *CreateUserRequest) error {
 }
 
 func ValidateUpdateUser(req *UpdateUserRequest) error {
-	if req.Name != "" {
-		if err := validateName(req.Name); err != nil {
+	if req.Name != nil && *req.Name != "" {
+		if err := validateName(*req.Name); err != nil {
 			return err
 		}
 	}
-	if req.Password != "" {
-		if err := validatePassword(req.Password, false); err != nil {
+	if req.Password != nil && *req.Password != "" {
+		if err := validatePassword(*req.Password, false); err != nil {
 			return err
 		}
 	}
-	if req.Phone != "" {
-		if err := validatePhone(req.Phone); err != nil {
+	if req.Phone != nil && *req.Phone != "" {
+		if err := validatePhone(*req.Phone); err != nil {
 			return err
 		}
 	}
