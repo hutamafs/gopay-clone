@@ -16,10 +16,11 @@ func CreateToken(user models.User) (string, error) {
 
 	// Create a new JWT token with claims
 	claims := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"user_id": user.ID,                          // Subject (user identifier)
-		"email":   user.Email,                       // Subject (user identifier)
-		"exp":     time.Now().Add(time.Hour).Unix(), // Expiration time
-		"iat":     time.Now().Unix(),                // Issued at
+		"user_id":   user.ID,    // Subject (user identifier)
+		"email":     user.Email, // Subject (user identifier)
+		"user_type": user.Type,
+		"exp":       time.Now().Add(time.Hour).Unix(), // Expiration time
+		"iat":       time.Now().Unix(),                // Issued at
 	})
 	tokenString, err := claims.SignedString(secretKey)
 	if err != nil {

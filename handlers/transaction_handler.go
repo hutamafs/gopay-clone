@@ -90,7 +90,7 @@ func (h *TransactionHandler) UpdateTransactionDetail(c echo.Context) error {
 	if err := utils.BindAndValidate(c, &req, validator.ValidateUpdateTransaction); err != nil {
 		return err
 	}
-	updates := make(map[string]interface{})
+	updates := make(map[string]any)
 
 	if req.Status != nil {
 		updates["status"] = *req.Status

@@ -33,10 +33,10 @@
 
 ### Merchant Profile Routes (`/merchants`)
 
-- [ ] `POST /merchants/profile` - Create merchant profile
-- [ ] `PUT /merchants/profile` - Update merchant profile
-- [ ] `GET /merchants` - List all merchants/restaurants
-- [ ] `GET /merchants/:id` - Get specific merchant profile details
+- [x] `POST /merchants/profile` - Create merchant profile
+- [x] `PUT /merchants/profile` - Update merchant profile
+- [x] `GET /merchants` - List all merchants/restaurants
+- [x] `GET /merchants/:id` - Get specific merchant profile details
 
 ### Menu Item Routes (Under Merchants) (`/merchants/:merchant_id/menuitems`)
 
@@ -87,7 +87,7 @@
 
 ### New Service Files Needed
 
-- [ ] `services/merchant_service.go` - Merchant profile management
+- [x] `services/merchant_service.go` - Merchant profile management
 - [ ] `services/menu_service.go` - Menu item management (under merchants)
 - [ ] `services/order_service.go` - Food order management
 - [ ] `services/ride_service.go` - Ride booking management
@@ -97,7 +97,7 @@
 
 ### New Handler Files Needed
 
-- [ ] `handlers/merchant_handler.go` - Merchant profile endpoints
+- [x] `handlers/merchant_handler.go` - Merchant profile endpoints
 - [ ] `handlers/menu_handler.go` - Menu item endpoints (under merchants)
 - [ ] `handlers/order_handler.go` - Food order endpoints
 - [ ] `handlers/auth_handler.go` - Authentication endpoints
@@ -107,7 +107,7 @@
 
 ### New Route Files Needed
 
-- [ ] `routes/merchant_routes.go` - Merchant profile routes + menu routes
+- [x] `routes/merchant_routes.go` - Merchant profile routes + menu routes
 - [ ] `routes/order_routes.go` - Food order routes
 - [ ] `routes/auth_routes.go` - Authentication routes
 - [ ] `routes/ride_routes.go` - Ride booking routes
@@ -147,7 +147,7 @@
 ### Validation Enhancements
 
 - [ ] Create validators for new models in `validator/` directory:
-  - [ ] `merchant_validator.go`
+  - [x] `merchant_validator.go`
   - [ ] `menu_validator.go`
   - [ ] `order_validator.go`
   - [ ] `ride_validator.go`

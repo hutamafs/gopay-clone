@@ -1,7 +1,5 @@
 package models
 
-import "time"
-
 type VehicleType string
 type UserType string
 
@@ -53,11 +51,11 @@ type MerchantProfile struct {
 	Description     string     `json:"description" gorm:"not null"`
 	MerchantPhone   string     `json:"merchant_phone"`
 	Category        string     `json:"category" gorm:"index:idx_merchant_category"`
-	OpenHour        time.Time  `json:"open_hour"`
-	ClosedHour      time.Time  `json:"closed_hour"`
+	OpenHour        string     `json:"open_hour"`   // "09:00" format
+	ClosedHour      string     `json:"closed_hour"` // "22:00" format
 	Rating          float64    `json:"rating" gorm:"default:0;not null"`
 	MerchantLogoURL string     `json:"merchant_logo_url"`
-	Menu            []MenuItem `json:"menu,omitempty" gorm:"foreignKey:MerchantId"`
+	Menu            []MenuItem `json:"menu" gorm:"foreignKey:MerchantId"`
 }
 
 type LoggedinUser struct {
