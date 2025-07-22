@@ -19,8 +19,17 @@ type CreateMenuRequest struct {
 	Name         string               `json:"name" validate:"required"`
 	Description  string               `json:"description"`
 	Price        float64              `json:"price" validate:"required"`
-	MenuImageURL string               `json:"merchant_logo_url"`
+	MenuImageURL string               `json:"menu_image_url"`
 	Category     *models.MenuCategory `json:"category"`
+}
+
+type UpdateMenuItemRequest struct {
+	Name         string               `json:"name" validate:"required"`
+	Description  string               `json:"description"`
+	Price        float64              `json:"price" validate:"required"`
+	MenuImageURL string               `json:"menu_image_url"`
+	Category     *models.MenuCategory `json:"category"`
+	IsAvailable  *bool                `json:"is_available"`
 }
 
 // type UpdateMerchantRequest struct {
@@ -35,6 +44,21 @@ type CreateMenuRequest struct {
 // }
 
 func ValidateCreateMenu(req *CreateMenuRequest) error {
+	if err := validateEmptyString(req.Name, "menu name"); err != nil {
+		return err
+	}
+	if req.Price <= 0 {
+		return errors.New("price can not be 0")
+	}
+	if req.Category != nil {
+		if !isValidMenuCategory(*req.Category) {
+			return errors.New("menu category is not valid")
+		}
+	}
+	return nil
+}
+
+func ValidateUpdateMenuItem(req *UpdateMenuItemRequest) error {
 	if err := validateEmptyString(req.Name, "menu name"); err != nil {
 		return err
 	}

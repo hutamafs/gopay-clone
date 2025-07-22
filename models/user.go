@@ -55,7 +55,7 @@ type MerchantProfile struct {
 	ClosedHour      string     `json:"closed_hour"` // "22:00" format
 	Rating          float64    `json:"rating" gorm:"default:0;not null"`
 	MerchantLogoURL string     `json:"merchant_logo_url"`
-	Menu            []MenuItem `json:"menu" gorm:"foreignKey:MerchantId"`
+	Menu            []MenuItem `json:"menu,omitempty" gorm:"foreignKey:MerchantId"`
 }
 
 type LoggedinUser struct {

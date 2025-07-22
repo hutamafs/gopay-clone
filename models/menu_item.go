@@ -14,7 +14,7 @@ const (
 type MenuItem struct {
 	BaseModel
 	MerchantId   uint            `json:"merchant_id" gorm:"not null"`
-	Merchant     MerchantProfile `json:"merchant" gorm:"foreignKey:MerchantId"`
+	Merchant     MerchantProfile `json:"-" gorm:"foreignKey:MerchantId"`
 	Name         string          `json:"name" gorm:"not null"`
 	Description  string          `json:"description" gorm:"not null"`
 	Rating       float64         `json:"rating" gorm:"default:0;not null"`

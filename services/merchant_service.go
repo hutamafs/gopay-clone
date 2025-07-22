@@ -1,10 +1,10 @@
 package services
 
 import (
-	// "errors"
 	"gopay-clone/config"
 	"gopay-clone/models"
-	// "gopay-clone/utils"
+
+	"gorm.io/gorm"
 )
 
 type MerchantService struct {
@@ -27,9 +27,20 @@ func (s *MerchantService) GetAllMerchants() ([]models.MerchantProfile, error) {
 
 func (s *MerchantService) GetMerchantByID(id uint) (*models.MerchantProfile, error) {
 	var merchant models.MerchantProfile
-	result := s.db.
-		Preload("Menu").
+	result := s.db.Preload("Menu", func(db *gorm.DB) *gorm.DB {
+		return db.
+			Order("rating DESC").
+			Limit(10)
+	}).
 		First(&merchant, id)
+	return &merchant, result.Error
+}
+
+func (s *MerchantService) GetMerchantByUserID(id uint) (*models.MerchantProfile, error) {
+	var merchant models.MerchantProfile
+	result := s.db.
+		Where("user_id = ?", id).
+		First(&merchant)
 	return &merchant, result.Error
 }
 

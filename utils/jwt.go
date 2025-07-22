@@ -35,3 +35,9 @@ func CLaimJwt(c echo.Context) int {
 	claims := user.Claims.(jwt.MapClaims)
 	return int(uint(claims["user_id"].(float64)))
 }
+
+func GetIDAndRoleFromJWT(c echo.Context) (int, string) {
+	user := c.Get("user").(*jwt.Token)
+	claims := user.Claims.(jwt.MapClaims)
+	return int(uint(claims["user_id"].(float64))), claims["user_type"].(string)
+}

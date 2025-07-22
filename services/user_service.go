@@ -2,7 +2,6 @@ package services
 
 import (
 	"errors"
-	"fmt"
 	"gopay-clone/config"
 	"gopay-clone/models"
 	"gopay-clone/utils"
@@ -17,7 +16,6 @@ func NewUserService(db *config.Database) *UserService {
 }
 
 func (s *UserService) CreateUser(user *models.User) error {
-	fmt.Println(user)
 	if err := s.db.Create(user).Error; err != nil {
 		return err
 	}

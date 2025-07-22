@@ -10,16 +10,30 @@ import (
 
 func RegisterMerchantRoutes(api *echo.Group, db *config.Database, jwtMiddleware echo.MiddlewareFunc) {
 	merchantService := services.NewMerchantService(db)
+	menuService := services.NewMenuItemService(db)
 	userService := services.NewUserService(db)
 	merchantHandler := handlers.NewMerchantHandler(userService, merchantService)
+	menuHandler := handlers.NewMenuHandler(menuService, merchantService)
 
 	publicMerchantAPI := api.Group("/merchants")
 	merchants := api.Group("/merchants")
+	menus := api.Group("/menus")
 	merchants.Use(jwtMiddleware)
 	{
 		publicMerchantAPI.POST("", merchantHandler.CreateMerchant)
 		merchants.GET("", merchantHandler.GetAllMerchants, jwtMiddleware)
 		merchants.GET("/:merchant_id", merchantHandler.GetAllMerchants, jwtMiddleware)
 		merchants.PUT("/:merchant_id", merchantHandler.UpdateMerchantByID, jwtMiddleware)
+		merchants.PUT("/:merchant_id", merchantHandler.UpdateMerchantByID, jwtMiddleware)
+
+		// menu item
+		merchants.POST("/:merchant_id/menu-item", menuHandler.CreateMenu, jwtMiddleware)
+		merchants.GET("/:merchant_id/menu-item", menuHandler.GetAllMenus, jwtMiddleware)
+		merchants.GET("/menu-item/:menu_id", menuHandler.GetMenuByID, jwtMiddleware)
+		merchants.PUT("/:merchant_id/menu-item/:menu_id", menuHandler.UpdateMenuItem, jwtMiddleware)
+		merchants.DELETE("/:merchant_id/menu-item/:menu_id", menuHandler.DeleteMenuItem, jwtMiddleware)
+
+		// get all menus by filter
+		menus.GET("/menu-items", menuHandler.GetAllMenus, jwtMiddleware)
 	}
 }
