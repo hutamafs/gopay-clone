@@ -31,15 +31,32 @@
 
 ## 🍕 New Model Routes to Implement
 
-### Food Service Routes (`/food`)
+### Merchant Profile Routes (`/merchants`)
 
-- [ ] `GET /food/merchants` - List all restaurants/merchants
-- [ ] `GET /food/merchants/:id` - Get merchant details with menu
-- [ ] `GET /food/merchants/:id/menu` - Get merchant menu items
-- [ ] `POST /food/orders` - Create food order
-- [ ] `GET /food/orders` - Get user's food orders
-- [ ] `GET /food/orders/:id` - Get specific order details
-- [ ] `PUT /food/orders/:id/status` - Update order status (merchant/driver only)
+- [ ] `POST /merchants/profile` - Create merchant profile
+- [ ] `PUT /merchants/profile` - Update merchant profile
+- [ ] `GET /merchants` - List all merchants/restaurants
+- [ ] `GET /merchants/:id` - Get specific merchant profile details
+
+### Menu Item Routes (Under Merchants) (`/merchants/:merchant_id/menuitems`)
+
+- [ ] `GET /merchants/:merchant_id/menuitems` - Get all menu items for merchant
+- [ ] `GET /merchants/:merchant_id/menuitems/:id` - Get specific menu item
+- [ ] `POST /merchants/:merchant_id/menuitems` - Create menu item (merchant owner only)
+- [ ] `PUT /merchants/:merchant_id/menuitems/:id` - Update menu item (merchant owner only)
+- [ ] `DELETE /merchants/:merchant_id/menuitems/:id` - Delete menu item (merchant owner only)
+
+### Browse Menu Routes (`/menuitems`)
+
+- [ ] `GET /menuitems` - Browse all menu items (with merchant filter, category filter) ( search by menu item, but returns the restaurant that has that food)
+
+### Order Routes (`/orders`)
+
+- [ ] `POST /orders` - Create new order (contains multiple menu items from ONE merchant)
+- [ ] `GET /orders` - Get user's orders
+- [ ] `GET /orders/:id` - Get specific order details
+- [ ] `PUT /orders/:id/status` - Update order status (merchant/driver only)
+- [ ] `PUT /orders/:id/assign-driver` - Assign driver to order (system only)
 
 ### Ride Service Routes (`/ride`)
 
@@ -58,15 +75,6 @@
 - [ ] `PUT /drivers/status` - Update driver status (online/offline)
 - [ ] `PUT /drivers/location` - Update driver current location
 
-### Merchant Profile Routes (`/merchants`)
-
-- [ ] `POST /merchants/profile` - Create merchant profile
-- [ ] `GET /merchants/profile` - Get current merchant profile
-- [ ] `PUT /merchants/profile` - Update merchant profile
-- [ ] `POST /merchants/menu` - Add menu item
-- [ ] `PUT /merchants/menu/:id` - Update menu item
-- [ ] `DELETE /merchants/menu/:id` - Delete menu item
-
 ### Contact Routes (`/contacts`)
 
 - [ ] `GET /contacts` - Get user's contacts
@@ -79,30 +87,31 @@
 
 ### New Service Files Needed
 
+- [ ] `services/merchant_service.go` - Merchant profile management
+- [ ] `services/menu_service.go` - Menu item management (under merchants)
 - [ ] `services/order_service.go` - Food order management
 - [ ] `services/ride_service.go` - Ride booking management
 - [ ] `services/driver_service.go` - Driver profile management
-- [ ] `services/merchant_service.go` - Merchant profile management
-- [ ] `services/menu_service.go` - Menu item management
 - [ ] `services/contact_service.go` - Contact management
 - [ ] `services/auth_service.go` - Authentication logic
 
 ### New Handler Files Needed
 
-- [ ] `handlers/auth_handler.go` - Authentication endpoints
+- [ ] `handlers/merchant_handler.go` - Merchant profile endpoints
+- [ ] `handlers/menu_handler.go` - Menu item endpoints (under merchants)
 - [ ] `handlers/order_handler.go` - Food order endpoints
+- [ ] `handlers/auth_handler.go` - Authentication endpoints
 - [ ] `handlers/ride_handler.go` - Ride booking endpoints
 - [ ] `handlers/driver_handler.go` - Driver profile endpoints
-- [ ] `handlers/merchant_handler.go` - Merchant profile endpoints
 - [ ] `handlers/contact_handler.go` - Contact endpoints
 
 ### New Route Files Needed
 
-- [ ] `routes/auth_routes.go` - Authentication routes
+- [ ] `routes/merchant_routes.go` - Merchant profile routes + menu routes
 - [ ] `routes/order_routes.go` - Food order routes
+- [ ] `routes/auth_routes.go` - Authentication routes
 - [ ] `routes/ride_routes.go` - Ride booking routes
 - [ ] `routes/driver_routes.go` - Driver profile routes
-- [ ] `routes/merchant_routes.go` - Merchant profile routes
 - [ ] `routes/contact_routes.go` - Contact routes
 
 ---
@@ -138,10 +147,11 @@
 ### Validation Enhancements
 
 - [ ] Create validators for new models in `validator/` directory:
+  - [ ] `merchant_validator.go`
+  - [ ] `menu_validator.go`
   - [ ] `order_validator.go`
   - [ ] `ride_validator.go`
   - [ ] `driver_validator.go`
-  - [ ] `merchant_validator.go`
   - [ ] `auth_validator.go`
 
 ### Transaction System Enhancement
