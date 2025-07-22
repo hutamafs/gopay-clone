@@ -40,11 +40,11 @@
 
 ### Menu Item Routes (Under Merchants) (`/merchants/:merchant_id/menuitems`)
 
-- [ ] `GET /merchants/:merchant_id/menuitems` - Get all menu items for merchant
-- [ ] `GET /merchants/:merchant_id/menuitems/:id` - Get specific menu item
-- [ ] `POST /merchants/:merchant_id/menuitems` - Create menu item (merchant owner only)
-- [ ] `PUT /merchants/:merchant_id/menuitems/:id` - Update menu item (merchant owner only)
-- [ ] `DELETE /merchants/:merchant_id/menuitems/:id` - Delete menu item (merchant owner only)
+- [x] `GET /merchants/:merchant_id/menuitems` - Get all menu items for merchant
+- [x] `GET /merchants/:merchant_id/menuitems/:id` - Get specific menu item
+- [x] `POST /merchants/:merchant_id/menuitems` - Create menu item (merchant owner only)
+- [x] `PUT /merchants/:merchant_id/menuitems/:id` - Update menu item (merchant owner only)
+- [x] `DELETE /merchants/:merchant_id/menuitems/:id` - Delete menu item (merchant owner only)
 
 ### Browse Menu Routes (`/menuitems`)
 
@@ -88,7 +88,7 @@
 ### New Service Files Needed
 
 - [x] `services/merchant_service.go` - Merchant profile management
-- [ ] `services/menu_service.go` - Menu item management (under merchants)
+- [x] `services/menu_service.go` - Menu item management (under merchants)
 - [ ] `services/order_service.go` - Food order management
 - [ ] `services/ride_service.go` - Ride booking management
 - [ ] `services/driver_service.go` - Driver profile management
@@ -98,7 +98,7 @@
 ### New Handler Files Needed
 
 - [x] `handlers/merchant_handler.go` - Merchant profile endpoints
-- [ ] `handlers/menu_handler.go` - Menu item endpoints (under merchants)
+- [x] `handlers/menu_handler.go` - Menu item endpoints (under merchants)
 - [ ] `handlers/order_handler.go` - Food order endpoints
 - [ ] `handlers/auth_handler.go` - Authentication endpoints
 - [ ] `handlers/ride_handler.go` - Ride booking endpoints
@@ -148,7 +148,7 @@
 
 - [ ] Create validators for new models in `validator/` directory:
   - [x] `merchant_validator.go`
-  - [ ] `menu_validator.go`
+  - [x] `menu_validator.go`
   - [ ] `order_validator.go`
   - [ ] `ride_validator.go`
   - [ ] `driver_validator.go`

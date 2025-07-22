@@ -11,7 +11,8 @@ import (
 func RegisterUserRoutes(api *echo.Group, db *config.Database, jwtMiddleware echo.MiddlewareFunc) {
 	userService := services.NewUserService(db)
 	accountService := services.NewAccountService(db)
-	userHandler := handlers.NewUserHandler(userService, accountService)
+	orderService := services.NewOrderService(db)
+	userHandler := handlers.NewUserHandler(userService, accountService, orderService)
 
 	users := api.Group("/users")
 	publicUsers := api.Group("/public/users")
@@ -27,4 +28,5 @@ func RegisterUserRoutes(api *echo.Group, db *config.Database, jwtMiddleware echo
 	users.PUT("/:id", userHandler.UpdateUser, jwtMiddleware)
 	users.DELETE("/:id", userHandler.DeleteUser, jwtMiddleware)
 	users.GET("/:user_id/accounts", userHandler.GetAccountsByUser, jwtMiddleware)
+	users.GET("/:user_id/orders", userHandler.GetAllOrdersByUser, jwtMiddleware)
 }

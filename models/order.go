@@ -15,8 +15,8 @@ type Order struct {
 	BaseModel
 	UserID          uint            `json:"user_id" gorm:"not null;index:idx_user_id"`         // who orders
 	MerchantID      uint            `json:"merchant_id" gorm:"not null;index:idx_merchant_id"` // where did the user order
-	User            User            `json:"user" gorm:"foreignKey:UserID"`
-	Merchant        MerchantProfile `json:"merchant" gorm:"foreignKey:MerchantID"`
+	User            User            `json:"-" gorm:"foreignKey:UserID"`
+	Merchant        MerchantProfile `json:"-" gorm:"foreignKey:MerchantID"`
 	DriverID        *uint           `json:"driver_id,omitempty" gorm:"index:idx_driver_id"` //pointer because driver assigned later
 	Driver          *DriverProfile  `json:"driver,omitempty" gorm:"foreignKey:DriverID"`
 	Items           []OrderItem     `json:"items" gorm:"foreignKey:OrderID"` // Added FK

@@ -15,10 +15,11 @@ import (
 type UserHandler struct {
 	userService    *services.UserService
 	accountService *services.AccountService
+	orderService   *services.OrderService
 }
 
-func NewUserHandler(userService *services.UserService, accountService *services.AccountService) *UserHandler {
-	return &UserHandler{userService: userService, accountService: accountService}
+func NewUserHandler(userService *services.UserService, accountService *services.AccountService, orderService *services.OrderService) *UserHandler {
+	return &UserHandler{userService: userService, accountService: accountService, orderService: orderService}
 }
 
 func (h *UserHandler) CreateUser(c echo.Context) error {
@@ -162,4 +163,13 @@ func (h *UserHandler) GetAccountsByUser(c echo.Context) error {
 		return utils.NotFoundResponse(c, "user id")
 	}
 	return utils.SuccessResponse(c, http.StatusOK, "Accounts for user fetched successfully", accounts)
+}
+
+func (h *UserHandler) GetAllOrdersByUser(c echo.Context) error {
+	loggedInUserId := utils.CLaimJwt(c)
+	orders, err := h.orderService.GetAllOrdersByUser(uint(loggedInUserId))
+	if err != nil {
+		return utils.ValidationErrorResponse(c, err)
+	}
+	return utils.SuccessResponse(c, http.StatusOK, "Orders fetched successfully", orders)
 }
