@@ -12,8 +12,9 @@ func RegisterOrderRoutes(api *echo.Group, db *config.Database, jwtMiddleware ech
 	orderService := services.NewOrderService(db)
 	merchantService := services.NewMerchantService(db)
 	userService := services.NewUserService(db)
+	menuService := services.NewMenuItemService(db)
 
-	orderHandler := handlers.NewOrderHandler(orderService, merchantService, userService)
+	orderHandler := handlers.NewOrderHandler(orderService, merchantService, userService, menuService)
 
 	orders := api.Group("/orders")
 	orders.Use(jwtMiddleware)

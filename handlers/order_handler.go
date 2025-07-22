@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"errors"
+	"fmt"
 	"gopay-clone/models"
 	"gopay-clone/services"
 	"gopay-clone/utils"
@@ -16,10 +17,11 @@ type OrderHandler struct {
 	orderService    *services.OrderService
 	merchantService *services.MerchantService
 	userService     *services.UserService
+	menuService     *services.MenuItemService
 }
 
-func NewOrderHandler(orderService *services.OrderService, merchantService *services.MerchantService, userService *services.UserService) *OrderHandler {
-	return &OrderHandler{orderService: orderService, merchantService: merchantService, userService: userService}
+func NewOrderHandler(orderService *services.OrderService, merchantService *services.MerchantService, userService *services.UserService, menuService *services.MenuItemService) *OrderHandler {
+	return &OrderHandler{orderService: orderService, merchantService: merchantService, userService: userService, menuService: menuService}
 }
 
 func (h *OrderHandler) CreateOrder(c echo.Context) error {
@@ -27,31 +29,49 @@ func (h *OrderHandler) CreateOrder(c echo.Context) error {
 	if err := utils.BindAndValidate(c, &req, validator.ValidateCreateOrder); err != nil {
 		return err
 	}
-	_, err := h.userService.GetUserById(req.UserID)
+	loggedInUserId := utils.CLaimJwt(c)
+	_, err := h.userService.GetUserById(uint(loggedInUserId))
 	if err != nil {
 		return utils.ValidationErrorResponse(c, err)
 	}
-	_, errMerchant := h.merchantService.GetMerchantByID(req.MerchantID)
+	fmt.Print(37)
+	_, errMerchant := h.merchantService.GetMerchantByID(uint(req.MerchantID))
+	fmt.Print(38)
 	if errMerchant != nil {
+		fmt.Print(errMerchant)
 		return utils.ValidationErrorResponse(c, errMerchant)
 	}
-	var items []validator.CreateOrderItemRequest
+	fmt.Print(42)
+	var totalAmount float64
+	var orderItems []models.OrderItem
 	for _, o := range req.Items {
-		items = append(items, validator.CreateOrderItemRequest{
+		fmt.Print(44)
+		fmt.Print(o)
+		menuItem, err := h.menuService.GetMenuItemByID(o.MenuItemID)
+		if err != nil || !menuItem.IsAvailable {
+			return utils.ValidationErrorResponse(c, err)
+		}
+		itemTotal := float64(o.Quantity) * menuItem.Price
+		totalAmount += itemTotal
+
+		orderItems = append(orderItems, models.OrderItem{
 			MenuItemID: o.MenuItemID,
 			Quantity:   o.Quantity,
 			Notes:      o.Notes,
-			Price:      o.Price,
+			Price:      menuItem.Price,
 		})
 	}
 
 	order := &models.Order{
-		UserID:          req.UserID,
+		UserID:          uint(loggedInUserId),
 		MerchantID:      req.MerchantID,
 		DeliveryAddress: req.DeliveryAddress,
+		TotalAmount:     totalAmount + 6.78,
+		DeliveryFee:     6.78, // for now its fixed at this amount, later on it will be calculated from merchant to destination
+		Items:           orderItems,
 	}
 
-	if err := h.orderService.CreateOrder(order, items); err != nil {
+	if err := h.orderService.CreateOrder(order, orderItems); err != nil {
 		return utils.InternalErrorResponse(c, err)
 	}
 

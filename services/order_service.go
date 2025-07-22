@@ -3,7 +3,8 @@ package services
 import (
 	"gopay-clone/config"
 	"gopay-clone/models"
-	"gopay-clone/validator"
+
+	"gorm.io/gorm"
 )
 
 type OrderService struct {
@@ -14,24 +15,26 @@ func NewOrderService(db *config.Database) *OrderService {
 	return &OrderService{db: db}
 }
 
-func (s *OrderService) CreateOrder(order *models.Order, items []validator.CreateOrderItemRequest) error {
-	if err := s.db.Create(order).Error; err != nil {
-		return err
-	}
-	for _, i := range items {
-		oi := models.OrderItem{
-			OrderID:    order.ID,
-			MenuItemID: i.MenuItemID,
-			Quantity:   i.Quantity,
-			Price:      i.Price,
-			Notes:      i.Notes,
-		}
-		if err := s.db.Create(&oi).Error; err != nil {
+func (s *OrderService) CreateOrder(order *models.Order, items []models.OrderItem) error {
+	return s.db.Transaction(func(tx *gorm.DB) error {
+		if err := tx.Create(order).Error; err != nil {
 			return err
 		}
-	}
-
-	return nil
+		// Create fresh OrderItem structs to avoid any ID conflicts
+		for _, item := range items {
+			orderItem := models.OrderItem{
+				OrderID:    order.ID,
+				MenuItemID: item.MenuItemID,
+				Quantity:   item.Quantity,
+				Price:      item.Price,
+				Notes:      item.Notes,
+			}
+			if err := tx.Create(&orderItem).Error; err != nil {
+				return err
+			}
+		}
+		return nil
+	})
 }
 
 func (s *OrderService) GetAllOrdersByUser(id uint) ([]models.Order, error) {
