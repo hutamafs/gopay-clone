@@ -9,7 +9,8 @@ import (
 var validOrderStatuses = map[models.OrderStatus]bool{
 	models.OrderPending:   true,
 	models.OrderConfirmed: true,
-	models.OrderCooking:   true,
+	models.OrderPreparing: true,
+	models.OrderReady:     true,
 	models.OrderDelivery:  true,
 	models.OrderCompleted: true,
 	models.OrderCancelled: true,
@@ -52,6 +53,13 @@ func isValidOrderStatus(t models.OrderStatus) bool {
 func ValidateUpdateOrderStatus(req *UpdateOrderStatusRequest) error {
 	if !isValidOrderStatus(models.OrderStatus(req.Status)) {
 		return errors.New("not a valid order status")
+	}
+	validStatuses := []string{"pending", "confirmed", "cooking", "ready", "delivery", "completed", "cancelled"}
+
+	for _, validStatus := range validStatuses {
+		if string(req.Status) == validStatus {
+			return nil
+		}
 	}
 
 	return nil

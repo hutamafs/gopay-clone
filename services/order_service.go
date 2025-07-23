@@ -55,3 +55,7 @@ func (s *OrderService) GetOrderByID(id uint) (*models.Order, error) {
 func (s *OrderService) UpdateOrderStatus(id uint, status string) error {
 	return s.db.Model(&models.Order{}).Where("id = ?", id).Update("status", status).Error
 }
+
+func (s *OrderService) DeleteOrder(id uint) error {
+	return s.db.Delete(&models.Order{}, id).Error
+}

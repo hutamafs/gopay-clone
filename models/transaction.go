@@ -48,5 +48,5 @@ type Transaction struct {
 	QrCode            *QrCode             `json:"qr_code,omitempty" gorm:"foreignKey:QrCodeID"`
 	Description       string              `json:"description,omitempty"`
 	ServiceType       ServiceType         `json:"service_type" gorm:"default:none;index:idx_service_type"`
-	ServiceID         *uint               `json:"service_id,omitempty" gorm:"index:idx_service_id"` // optional because it might be just a transfer
+	ServiceID         *uint               `json:"service_id,omitempty" gorm:"index:idx_service_id"` // optional because it might be just a transfer // this could be ride.id, order.id (comes from food)
 }

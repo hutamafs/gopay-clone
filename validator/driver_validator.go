@@ -13,6 +13,7 @@ var validVehicleTypes = map[models.VehicleType]bool{
 
 var validDriverStatuses = map[string]bool{
 	"online":  true,
+	"sending": true,
 	"offline": true,
 	"suspend": true,
 }

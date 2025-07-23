@@ -5,7 +5,8 @@ type OrderStatus string
 const (
 	OrderPending   OrderStatus = "pending"
 	OrderConfirmed OrderStatus = "confirmed"
-	OrderCooking   OrderStatus = "cooking"
+	OrderPreparing OrderStatus = "cooking"
+	OrderReady     OrderStatus = "ready"
 	OrderDelivery  OrderStatus = "delivery"
 	OrderCompleted OrderStatus = "completed"
 	OrderCancelled OrderStatus = "cancelled"

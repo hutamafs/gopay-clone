@@ -2,6 +2,7 @@ package models
 
 type VehicleType string
 type UserType string
+type DriverStatus string
 
 const (
 	Car        VehicleType = "car"
@@ -12,6 +13,13 @@ const (
 	Consumer UserType = "consumer"
 	Driver   UserType = "driver"
 	Merchant UserType = "merchant"
+)
+
+const (
+	Offline   DriverStatus = "offline"
+	Online    DriverStatus = "online"
+	Suspended DriverStatus = "suspended"
+	Sending   DriverStatus = "sending"
 )
 
 type User struct {
@@ -30,16 +38,16 @@ type User struct {
 
 type DriverProfile struct {
 	BaseModel
-	UserId            uint        `json:"user_id,omitempty" gorm:"foreignKey:UserId;index:idx_user_id"`
-	User              User        `json:"-"`
-	LicenseNumber     string      `json:"license_number" gorm:"unique; not null"`
-	LicensePictureURL string      `json:"license_picture_url"`
-	VehiclePlate      string      `json:"vehicle_plate" gorm:"unique; not null"`
-	VehicleType       VehicleType `json:"vehicle_type" gorm:"default:motorcycle;not null;index:idx_vehicle_type"`
-	Rating            float64     `json:"rating" gorm:"default:0;not null;"`
-	CurrentLocation   string      `json:"current_location" gorm:"index:idx_location"`
-	Status            string      `json:"status" gorm:"default:offline;index:idx_status"` // offline online suspend
-	IsVerified        bool        `json:"is_verified" gorm:"default:false"`
+	UserId            uint         `json:"user_id,omitempty" gorm:"foreignKey:UserId;index:idx_user_id"`
+	User              User         `json:"-"`
+	LicenseNumber     string       `json:"license_number" gorm:"unique; not null"`
+	LicensePictureURL string       `json:"license_picture_url"`
+	VehiclePlate      string       `json:"vehicle_plate" gorm:"unique; not null"`
+	VehicleType       VehicleType  `json:"vehicle_type" gorm:"default:motorcycle;not null;index:idx_vehicle_type"`
+	Rating            float64      `json:"rating" gorm:"default:0;not null;"`
+	CurrentLocation   string       `json:"current_location" gorm:"index:idx_location"`
+	Status            DriverStatus `json:"status" gorm:"default:offline;index:idx_status"` // offline online suspend
+	IsVerified        bool         `json:"is_verified" gorm:"default:false"`
 }
 
 type MerchantProfile struct {

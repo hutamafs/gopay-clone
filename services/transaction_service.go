@@ -65,3 +65,7 @@ func (s *TransactionService) GetTransactionById(id uint) (*models.Transaction, e
 func (s *TransactionService) UpdateTransaction(transactionID uint, updates map[string]any) error {
 	return s.db.Model(&models.Transaction{}).Where("id = ?", transactionID).Updates(updates).Error
 }
+
+func (s *TransactionService) UpdateTransactionWhenFoodOrderCompleted(orderId uint) error {
+	return s.db.Model(&models.Transaction{}).Where("service_type = ? AND service_id = ?", "food", orderId).Update("status", "completed").Error
+}

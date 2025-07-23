@@ -32,6 +32,12 @@ func (s *AccountService) GetAccountById(id uint) (*models.Account, error) {
 		Error
 }
 
+func (s *AccountService) GetMainBalanceAccount(userID uint) (*models.Account, error) {
+	var account models.Account
+	result := s.db.Where("user_id = ? AND account_type = ?", userID, "main_balance").First(&account)
+	return &account, result.Error
+}
+
 func (s *AccountService) GetBalanceByAccountId(accountId uint) (*float64, error) {
 	var account models.Account
 	return &account.Balance, s.db.First(&account, accountId).Error
