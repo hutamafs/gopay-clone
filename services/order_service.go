@@ -52,22 +52,6 @@ func (s *OrderService) GetOrderByID(id uint) (*models.Order, error) {
 	return &order, result.Error
 }
 
-func (s *OrderService) GetMerchantByUserID(id uint) (*models.MerchantProfile, error) {
-	var merchant models.MerchantProfile
-	result := s.db.
-		Where("user_id = ?", id).
-		First(&merchant)
-	return &merchant, result.Error
-}
-
-func (s *OrderService) UpdateUser(user *models.User) error {
-	return s.db.Save(user).Error
-}
-
-func (s *OrderService) UpdateMerchant(id uint, merchant map[string]any) error {
-	return s.db.Model(&models.MerchantProfile{}).Where("id = ?", id).Updates(merchant).Error
-}
-
-func (s *OrderService) DeleteMerchant(id uint) error {
-	return s.db.Delete(&models.MerchantProfile{}, id).Error
+func (s *OrderService) UpdateOrderStatus(id uint, status string) error {
+	return s.db.Model(&models.Order{}).Where("id = ?", id).Update("status", status).Error
 }

@@ -27,6 +27,7 @@ func setupRoutes(e *echo.Echo, db *config.Database, secret string) {
 	routes.RegisterTransactionRoutes(api, db, jwtMiddleware)
 	routes.RegisterQRRoutes(api, db, jwtMiddleware)
 	routes.RegisterOrderRoutes(api, db, jwtMiddleware)
+	routes.RegisterDriverRoutes(api, db, jwtMiddleware)
 }
 
 func main() {

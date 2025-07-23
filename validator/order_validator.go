@@ -2,8 +2,18 @@ package validator
 
 import (
 	"errors"
+	"gopay-clone/models"
 	"strings"
 )
+
+var validOrderStatuses = map[models.OrderStatus]bool{
+	models.OrderPending:   true,
+	models.OrderConfirmed: true,
+	models.OrderCooking:   true,
+	models.OrderDelivery:  true,
+	models.OrderCompleted: true,
+	models.OrderCancelled: true,
+}
 
 type CreateOrderRequest struct {
 	MerchantID      uint                     `json:"merchant_id" validate:"required"`
@@ -15,6 +25,10 @@ type CreateOrderItemRequest struct {
 	MenuItemID uint   `json:"menu_item_id" validate:"required"`
 	Quantity   int    `json:"quantity" validate:"required,min=1"`
 	Notes      string `json:"notes"`
+}
+
+type UpdateOrderStatusRequest struct {
+	Status models.OrderStatus `json:"status" validate:"required"`
 }
 
 func ValidateCreateOrder(req *CreateOrderRequest) error {
@@ -31,9 +45,13 @@ func ValidateCreateOrder(req *CreateOrderRequest) error {
 	return nil
 }
 
-func ValidateUpdateOrder(req *UpdateAccountRequest) error {
-	if strings.TrimSpace(req.Name) == "" {
-		return errors.New("account name cannot be empty")
+func isValidOrderStatus(t models.OrderStatus) bool {
+	return validOrderStatuses[t]
+}
+
+func ValidateUpdateOrderStatus(req *UpdateOrderStatusRequest) error {
+	if !isValidOrderStatus(models.OrderStatus(req.Status)) {
+		return errors.New("not a valid order status")
 	}
 
 	return nil

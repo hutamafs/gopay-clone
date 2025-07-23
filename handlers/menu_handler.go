@@ -30,7 +30,7 @@ func (h *MenuHandler) CreateMenu(c echo.Context) error {
 	user_id, user_role := utils.GetIDAndRoleFromJWT(c)
 	m, err := h.merchantService.GetMerchantByUserID(uint(user_id))
 	if err != nil {
-		return utils.InternalErrorResponse(c, err)
+		return utils.NotFoundResponse(c, "merchant with this user id")
 	}
 	if user_role != "merchant" {
 		return utils.ValidationErrorResponse(c, errors.New("only merchant can create menu"))

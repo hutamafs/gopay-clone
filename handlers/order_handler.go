@@ -7,6 +7,7 @@ import (
 	"gopay-clone/services"
 	"gopay-clone/utils"
 	"gopay-clone/validator"
+	"math"
 	"net/http"
 	"strconv"
 
@@ -34,19 +35,17 @@ func (h *OrderHandler) CreateOrder(c echo.Context) error {
 	if err != nil {
 		return utils.ValidationErrorResponse(c, err)
 	}
-	fmt.Print(37)
+
 	_, errMerchant := h.merchantService.GetMerchantByID(uint(req.MerchantID))
-	fmt.Print(38)
+
 	if errMerchant != nil {
 		fmt.Print(errMerchant)
 		return utils.ValidationErrorResponse(c, errMerchant)
 	}
-	fmt.Print(42)
+
 	var totalAmount float64
 	var orderItems []models.OrderItem
 	for _, o := range req.Items {
-		fmt.Print(44)
-		fmt.Print(o)
 		menuItem, err := h.menuService.GetMenuItemByID(o.MenuItemID)
 		if err != nil || !menuItem.IsAvailable {
 			return utils.ValidationErrorResponse(c, err)
@@ -66,16 +65,34 @@ func (h *OrderHandler) CreateOrder(c echo.Context) error {
 		UserID:          uint(loggedInUserId),
 		MerchantID:      req.MerchantID,
 		DeliveryAddress: req.DeliveryAddress,
-		TotalAmount:     totalAmount + 6.78,
-		DeliveryFee:     6.78, // for now its fixed at this amount, later on it will be calculated from merchant to destination
-		Items:           orderItems,
+		TotalAmount:     math.Round((totalAmount+6.78)*100) / 100,
+		DeliveryFee:     6.78,
 	}
 
 	if err := h.orderService.CreateOrder(order, orderItems); err != nil {
 		return utils.InternalErrorResponse(c, err)
 	}
+	createdOrder, err := h.orderService.GetOrderByID(uint(order.ID))
+	if err != nil {
+		return utils.NotFoundResponse(c, "id")
+	}
+	return utils.SuccessResponse(c, http.StatusOK, "Order created successfully", createdOrder)
+}
 
-	return utils.SuccessResponse(c, http.StatusCreated, "Order created successfully", order)
+func (h *OrderHandler) UpdateOrderStatus(c echo.Context) error {
+	orderId, err := strconv.Atoi(c.Param("order_id"))
+	if err != nil {
+		return utils.ValidationErrorResponse(c, err)
+	}
+	var req validator.UpdateOrderStatusRequest
+	if err := utils.BindAndValidate(c, &req, validator.ValidateUpdateOrderStatus); err != nil {
+		return utils.ValidationErrorResponse(c, err)
+	}
+
+	if err := h.orderService.UpdateOrderStatus(uint(orderId), string(req.Status)); err != nil {
+		return utils.InternalErrorResponse(c, err)
+	}
+	return utils.SuccessResponse(c, http.StatusOK, "Order status updated successfully", nil)
 }
 
 func (h *OrderHandler) GetOrderByID(c echo.Context) error {

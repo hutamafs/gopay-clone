@@ -21,5 +21,6 @@ func RegisterOrderRoutes(api *echo.Group, db *config.Database, jwtMiddleware ech
 	{
 		orders.POST("", orderHandler.CreateOrder)
 		orders.GET("/:order_id", orderHandler.GetOrderByID)
+		orders.PUT("/:order_id/status", orderHandler.UpdateOrderStatus)
 	}
 }
