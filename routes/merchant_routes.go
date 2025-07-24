@@ -15,7 +15,7 @@ func RegisterMerchantRoutes(api *echo.Group, db *config.Database, jwtMiddleware 
 	merchantHandler := handlers.NewMerchantHandler(userService, merchantService)
 	menuHandler := handlers.NewMenuHandler(menuService, merchantService)
 
-	publicMerchantAPI := api.Group("/merchants")
+	publicMerchantAPI := api.Group("/public/merchants")
 	merchants := api.Group("/merchants")
 	menus := api.Group("/menus")
 	merchants.Use(jwtMiddleware)
@@ -23,7 +23,6 @@ func RegisterMerchantRoutes(api *echo.Group, db *config.Database, jwtMiddleware 
 		publicMerchantAPI.POST("", merchantHandler.CreateMerchant)
 		merchants.GET("", merchantHandler.GetAllMerchants, jwtMiddleware)
 		merchants.GET("/:merchant_id", merchantHandler.GetAllMerchants, jwtMiddleware)
-		merchants.PUT("/:merchant_id", merchantHandler.UpdateMerchantByID, jwtMiddleware)
 		merchants.PUT("/:merchant_id", merchantHandler.UpdateMerchantByID, jwtMiddleware)
 
 		// menu item

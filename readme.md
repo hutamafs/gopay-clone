@@ -151,24 +151,26 @@ GET    /api/v1/users/:id/orders  # Get user's orders
 #### **🏪 Merchant Management**
 
 ```http
-GET    /api/v1/public/merchants           # List all merchants
-POST   /api/v1/public/merchants           # Register merchant
-GET    /api/v1/merchants/:id              # Get merchant details
-PUT    /api/v1/merchants/profile          # Update merchant profile
-GET    /api/v1/merchants/menu-items       # Get merchant's menu
-POST   /api/v1/merchants/menu-items       # Add menu item
-PUT    /api/v1/merchants/menu-items/:id   # Update menu item
-DELETE /api/v1/merchants/menu-items/:id   # Delete menu item
+POST   /api/v1/public/merchants                         # Register merchant
+GET    /api/v1/merchants                                # List all merchants
+GET    /api/v1/merchants/:id                            # Get merchant details
+PUT    /api/v1/merchants/:id                            # Update merchant profile
+GET    /api/v1/merchants/:merchant_id/menu-item         # Get merchant's menu
+POST   /api/v1/merchants/:merchant_id/menu-item         # Add menu item
+PUT    /api/v1/merchants/:merchant_id/menu-item/:id     # Update menu item
+DELETE /api/v1/merchants/:merchant_id/menu-items/:id    # Delete menu item
+GET    /api/v1/menus/menu-items                         # Get all menu item
 ```
 
 #### **💰 Account & Wallet**
 
 ```http
-GET    /api/v1/accounts                   # Get user accounts
-POST   /api/v1/accounts                   # Create new account
-GET    /api/v1/accounts/:id               # Get account details
-PUT    /api/v1/accounts/:id               # Update account
-DELETE /api/v1/accounts/:id               # Delete account
+POST   /api/v1/accounts                                      # Create new account
+GET    /api/v1/:user_id/accounts                             # Get user accounts
+GET    /api/v1/accounts/:account_id/balance                  # Get account balance
+GET    /api/v1/accounts/:account_id/detail                   # Get account detail
+GET    /api/v1/accounts/:account_id/transactions             # Get account transaction history
+PUT    /api/v1/accounts/:account_id                          # Update account detail
 ```
 
 #### **💳 Transactions**
