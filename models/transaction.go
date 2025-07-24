@@ -36,10 +36,10 @@ const (
 
 type Transaction struct {
 	BaseModel
-	Amount            float64             `json:"amount" gorm:"not null"`
-	SenderAccountID   uint                `json:"sender_account_id" gorm:"not null;index:idx_sender_account"`
+	Amount            float64             `json:"amount" gorm:"not null;check:amount > 0"`
+	SenderAccountID   uint                `json:"sender_account_id" gorm:"not null;index:idx_sender_receiver;priority:1"`
 	SenderAccount     Account             `json:"-" gorm:"foreignKey:SenderAccountID"`
-	ReceiverAccountID uint                `json:"receiver_account_id" gorm:"not null;index:idx_receiver_account"`
+	ReceiverAccountID uint                `json:"receiver_account_id" gorm:"not null;index:idx_sender_receiver,priority:2"`
 	ReceiverAccount   Account             `json:"-" gorm:"foreignKey:ReceiverAccountID"`
 	Category          TransactionCategory `json:"category" gorm:"default:other;index:idx_category"`
 	Type              TransactionType     `json:"type" gorm:"default:payment;index:idx_type"`

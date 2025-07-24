@@ -67,7 +67,7 @@ func (s *QRService) ScanQR(qr *models.QrCode, senderAccountId uint) error {
 			ReceiverAccount:   receiver,
 			QrCodeID:          &qr.ID,
 			QrCode:            qr,
-			Status:            "paid",
+			Status:            models.TransactionCompleted,
 		}
 		if err := tx.Create(&createdTransaction).Error; err != nil {
 			return err

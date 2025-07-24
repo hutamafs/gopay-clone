@@ -24,9 +24,9 @@ func RegisterUserRoutes(api *echo.Group, db *config.Database, jwtMiddleware echo
 
 	// PROTECTED routes (with middleware)
 	users.Use(jwtMiddleware)
-	users.GET("/:id", userHandler.GetUserById, jwtMiddleware)
-	users.PUT("/:id", userHandler.UpdateUser, jwtMiddleware)
-	users.DELETE("/:id", userHandler.DeleteUser, jwtMiddleware)
-	users.GET("/:user_id/accounts", userHandler.GetAccountsByUser, jwtMiddleware)
-	users.GET("/:user_id/orders", userHandler.GetAllOrdersByUser, jwtMiddleware)
+	users.GET("/:id", userHandler.GetUserById)
+	users.PUT("/:id", userHandler.UpdateUser)
+	users.DELETE("/:id", userHandler.DeleteUser)
+	users.GET("/:user_id/accounts", userHandler.GetAccountsByUser)
+	users.GET("/:user_id/orders", userHandler.GetAllOrdersByUser)
 }

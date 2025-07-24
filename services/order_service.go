@@ -39,7 +39,7 @@ func (s *OrderService) CreateOrder(order *models.Order, items []models.OrderItem
 
 func (s *OrderService) GetAllOrdersByUser(id uint) ([]models.Order, error) {
 	var orders []models.Order
-	results := s.db.Find(&orders).Where("user_id = ?", id).Limit(20)
+	results := s.db.Where("user_id = ?", id).Limit(20).Find(&orders)
 	return orders, results.Error
 }
 

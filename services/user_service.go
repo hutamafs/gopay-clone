@@ -22,12 +22,12 @@ func (s *UserService) CreateUser(user *models.User) error {
 	defaultAccounts := []models.Account{
 		{
 			Name:        "main wallet",
-			AccountType: "main",
+			AccountType: models.MainBalance,
 			UserId:      user.ID,
 		},
 		{
 			Name:        "points",
-			AccountType: "gopay_points",
+			AccountType: models.Points,
 			UserId:      user.ID,
 		},
 	}

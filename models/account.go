@@ -10,7 +10,7 @@ const (
 type Account struct {
 	BaseModel
 	Name                 string        `json:"name" gorm:"not null"`
-	Balance              float64       `json:"balance" gorm:"default:0"`
+	Balance              float64       `json:"balance" gorm:"default:0;check:balance >= 0"`
 	UserId               uint          `json:"user_id" gorm:"not null;index:idx_user_id"`
 	AccountType          AccountType   `json:"account_type" gorm:"not null;default:main_balance"`
 	User                 User          `json:"-"`
