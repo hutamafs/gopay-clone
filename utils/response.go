@@ -1,16 +1,23 @@
 package utils
 
 import (
+	apperrors "gopay-clone/errors"
 	"net/http"
 
 	"github.com/labstack/echo/v4"
 )
 
 type APIResponse struct {
-	Success bool   `json:"success"`
+	Success bool         `json:"success"`
+	Message string       `json:"message"`
+	Data    any          `json:"data,omitempty"`
+	Error   *ErrorDetail `json:"error,omitempty"`
+}
+
+type ErrorDetail struct {
+	Code    string `json:"code,omitempty"`
 	Message string `json:"message"`
-	Data    any    `json:"data,omitempty"`
-	Error   string `json:"error,omitempty"`
+	Type    string `json:"type,omitempty"`
 }
 
 func SuccessResponse(c echo.Context, statusCode int, message string, data any) error {
@@ -21,6 +28,7 @@ func SuccessResponse(c echo.Context, statusCode int, message string, data any) e
 	})
 }
 
+// enhanced error response that handles AppError
 func ErrorResponse(c echo.Context, statusCode int, message string, err error) error {
 	response := APIResponse{
 		Success: false,
@@ -28,10 +36,28 @@ func ErrorResponse(c echo.Context, statusCode int, message string, err error) er
 	}
 
 	if err != nil {
-		response.Error = err.Error()
+		if appErr, ok := apperrors.IsAppError(err); ok {
+			response.Error = &ErrorDetail{
+				Code:    appErr.Code,
+				Message: appErr.Message,
+				Type:    appErr.Type,
+			}
+		} else {
+			response.Error = &ErrorDetail{
+				Message: err.Error(),
+			}
+		}
 	}
 
 	return c.JSON(statusCode, response)
+}
+
+// split error response that automatically determines status code from AppError
+func SplitErrorResponse(c echo.Context, err error) error {
+	if appErr, ok := apperrors.IsAppError(err); ok {
+		return ErrorResponse(c, appErr.HTTPStatus, appErr.Message, appErr)
+	}
+	return InternalErrorResponse(c, err)
 }
 
 func ValidationErrorResponse(c echo.Context, err error) error {
@@ -48,4 +74,12 @@ func InternalErrorResponse(c echo.Context, err error) error {
 
 func ForbiddenResponse(c echo.Context, err error) error {
 	return ErrorResponse(c, http.StatusForbidden, "Forbidden", err)
+}
+
+func UnauthorizedResponse(c echo.Context, err error) error {
+	return ErrorResponse(c, http.StatusUnauthorized, "Unauthorized", err)
+}
+
+func ConflictResponse(c echo.Context, message string, err error) error {
+	return ErrorResponse(c, http.StatusConflict, message, err)
 }

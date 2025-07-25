@@ -30,7 +30,7 @@ func (h *MenuHandler) CreateMenu(c echo.Context) error {
 	user_id, user_role := utils.GetIDAndRoleFromJWT(c)
 	m, err := h.merchantService.GetMerchantByUserID(uint(user_id))
 	if err != nil {
-		return utils.NotFoundResponse(c, "merchant with this user id")
+		return utils.SplitErrorResponse(c, err)
 	}
 	if user_role != "merchant" {
 		return utils.ValidationErrorResponse(c, errors.New("only merchant can create menu"))
@@ -50,7 +50,7 @@ func (h *MenuHandler) CreateMenu(c echo.Context) error {
 	}
 
 	if err := h.menuService.CreateMenu(menu); err != nil {
-		return utils.InternalErrorResponse(c, err)
+		return utils.SplitErrorResponse(c, err)
 	}
 
 	return utils.SuccessResponse(c, http.StatusCreated, "Menu created successfully", menu)
@@ -63,7 +63,7 @@ func (h *MenuHandler) GetAllMenus(c echo.Context) error {
 	}
 	menus, err := h.menuService.GetAllMenusFromMerchant(uint(merchant_id))
 	if err != nil {
-		return utils.ValidationErrorResponse(c, err)
+		return utils.SplitErrorResponse(c, err)
 	}
 	return utils.SuccessResponse(c, http.StatusOK, "All Menus fetched successfully", menus)
 }
@@ -76,23 +76,9 @@ func (h *MenuHandler) GetMenuByID(c echo.Context) error {
 
 	menu, err := h.menuService.GetMenuItemByID(uint(id))
 	if err != nil {
-		return utils.NotFoundResponse(c, "menu")
+		return utils.SplitErrorResponse(c, err)
 	}
 	return utils.SuccessResponse(c, http.StatusOK, "Menu detail fetched successfully", menu)
-}
-
-func (h *MenuHandler) GetMenuItemByID(c echo.Context) error {
-	menuId, err := strconv.Atoi(c.Param("menu_id"))
-	if err != nil {
-		return utils.ValidationErrorResponse(c, err)
-	}
-
-	menuItem, err := h.menuService.GetMenuItemByID(uint(menuId))
-	if err != nil {
-		return utils.NotFoundResponse(c, "menu item")
-	}
-
-	return utils.SuccessResponse(c, http.StatusOK, "Menu item fetched successfully", menuItem)
 }
 
 func (h *MenuHandler) UpdateMenuItem(c echo.Context) error {
@@ -109,22 +95,22 @@ func (h *MenuHandler) UpdateMenuItem(c echo.Context) error {
 	// Verify ownership logged in id == the merchant user.id
 	merchant, err := h.merchantService.GetMerchantByID(uint(merchantId))
 	if err != nil {
-		return utils.NotFoundResponse(c, "merchant")
+		return utils.SplitErrorResponse(c, err)
 	}
 
 	loggedInUserId := utils.CLaimJwt(c)
 	if merchant.UserId != uint(loggedInUserId) {
-		return utils.ForbiddenResponse(c, errors.New("unauthorized: you don't own this merchant"))
+		return utils.ValidationErrorResponse(c, errors.New("unauthorized: merchant can only update their own menu items"))
 	}
 
 	// verify menu item belongs to merchant
 	menuItem, err := h.menuService.GetMenuItemByID(uint(menuId))
 	if err != nil {
-		return utils.NotFoundResponse(c, "menu item")
+		return utils.SplitErrorResponse(c, err)
 	}
 
 	if menuItem.MerchantId != uint(merchantId) {
-		return utils.ForbiddenResponse(c, errors.New("menu item doesn't belong to this merchant"))
+		return utils.ValidationErrorResponse(c, errors.New("unauthorized: menu item does not belong to this merchant"))
 	}
 
 	var req validator.UpdateMenuItemRequest
@@ -150,7 +136,7 @@ func (h *MenuHandler) UpdateMenuItem(c echo.Context) error {
 	}
 
 	if err := h.menuService.UpdateMenuItem(uint(menuId), updates); err != nil {
-		return utils.InternalErrorResponse(c, err)
+		return utils.SplitErrorResponse(c, err)
 	}
 
 	updatedMenuItem, _ := h.menuService.GetMenuItemByID(uint(menuId))
@@ -171,26 +157,26 @@ func (h *MenuHandler) DeleteMenuItem(c echo.Context) error {
 	// Verify ownership logged in id == the merchant user.id
 	merchant, err := h.merchantService.GetMerchantByID(uint(merchantId))
 	if err != nil {
-		return utils.NotFoundResponse(c, "merchant")
+		return utils.SplitErrorResponse(c, err)
 	}
 
 	loggedInUserId := utils.CLaimJwt(c)
 	if merchant.UserId != uint(loggedInUserId) {
-		return utils.ForbiddenResponse(c, errors.New("unauthorized: you don't own this merchant"))
+		return utils.ValidationErrorResponse(c, errors.New("unauthorized: merchant can only delete their own menu items"))
 	}
 
 	// verify menu item belongs to merchant
 	menuItem, err := h.menuService.GetMenuItemByID(uint(menuId))
 	if err != nil {
-		return utils.NotFoundResponse(c, "menu item")
+		return utils.SplitErrorResponse(c, err)
 	}
 
 	if menuItem.MerchantId != uint(merchantId) {
-		return utils.ForbiddenResponse(c, errors.New("menu item doesn't belong to this merchant"))
+		return utils.ValidationErrorResponse(c, errors.New("unauthorized: menu item does not belong to this merchant"))
 	}
 
 	if err := h.menuService.DeleteMenuItem(uint(menuId)); err != nil {
-		return utils.InternalErrorResponse(c, err)
+		return utils.SplitErrorResponse(c, err)
 	}
 	return utils.SuccessResponse(c, http.StatusOK, "Deleted Menu Item", nil)
 }
@@ -199,7 +185,7 @@ func (h *MenuHandler) GetAllMenusByCategory(c echo.Context) error {
 	category := c.QueryParam("category")
 	menus, err := h.menuService.GetMenuByCategory(category)
 	if err != nil {
-		return utils.ValidationErrorResponse(c, err)
+		return utils.SplitErrorResponse(c, err)
 	}
 	str := fmt.Sprintf("menus with category %v has been fetched successfully", category)
 	return utils.SuccessResponse(c, http.StatusOK, str, menus)

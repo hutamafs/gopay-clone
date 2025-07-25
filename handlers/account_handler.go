@@ -1,8 +1,10 @@
 package handlers
 
 import (
+	"errors"
 	"gopay-clone/models"
 	"gopay-clone/services"
+
 	"gopay-clone/utils"
 	"gopay-clone/validator"
 	"net/http"
@@ -15,6 +17,14 @@ type AccountHandler struct {
 	accountService     *services.AccountService
 	transactionService *services.TransactionService
 }
+
+/*
+	return err if its from bind and validate because it will return validation error from the internal function
+
+	return validationerror if the error might comes from user input
+
+	return split error if it might comes from the service
+*/
 
 func NewAccountHandler(accountService *services.AccountService, transactionService *services.TransactionService) *AccountHandler {
 	return &AccountHandler{accountService: accountService, transactionService: transactionService}
@@ -33,7 +43,7 @@ func (h *AccountHandler) CreateAccount(c echo.Context) error {
 	}
 
 	if err := h.accountService.CreateAccount(account); err != nil {
-		return utils.InternalErrorResponse(c, err)
+		return utils.SplitErrorResponse(c, err)
 	}
 
 	return utils.SuccessResponse(c, http.StatusCreated, "Account created successfully", account)
@@ -46,7 +56,7 @@ func (h *AccountHandler) GetBalanceByAccountId(c echo.Context) error {
 	}
 	balance, err := h.accountService.GetBalanceByAccountId(uint(accountId))
 	if err != nil {
-		return utils.ValidationErrorResponse(c, err)
+		return utils.SplitErrorResponse(c, err)
 	}
 	val := map[string]float64{
 		"balance": *balance,
@@ -61,15 +71,19 @@ func (h *AccountHandler) UpdateAccount(c echo.Context) error {
 	}
 	account, err := h.accountService.GetAccountById(uint(accountId))
 	if err != nil {
-		return utils.ValidationErrorResponse(c, err)
+		return utils.SplitErrorResponse(c, err)
+	}
+	loggedInUserId := utils.CLaimJwt(c)
+	if int(account.UserId) != int(loggedInUserId) {
+		return utils.ForbiddenResponse(c, errors.New("unauthorized access"))
 	}
 	var req validator.UpdateAccountRequest
 	if err := utils.BindAndValidate(c, &req, validator.ValidateUpdateAccount); err != nil {
-		return utils.ValidationErrorResponse(c, err)
+		return err
 	}
 	account.Name = req.Name
 	if err := h.accountService.UpdateAccount(account); err != nil {
-		return utils.InternalErrorResponse(c, err)
+		return utils.SplitErrorResponse(c, err)
 	}
 	return utils.SuccessResponse(c, http.StatusOK, "Account updated successfully", account)
 }
@@ -80,11 +94,15 @@ func (h *AccountHandler) GetAccountDetail(c echo.Context) error {
 		return utils.ValidationErrorResponse(c, err)
 	}
 
-	user, err := h.accountService.GetAccountById(uint(id))
+	account, err := h.accountService.GetAccountById(uint(id))
 	if err != nil {
-		return utils.NotFoundResponse(c, "id")
+		return utils.SplitErrorResponse(c, err)
 	}
-	return utils.SuccessResponse(c, http.StatusOK, "Account detail fetched successfully", user)
+	loggedInUserId := utils.CLaimJwt(c)
+	if int(account.UserId) != int(loggedInUserId) {
+		return utils.ForbiddenResponse(c, errors.New("unauthorized access"))
+	}
+	return utils.SuccessResponse(c, http.StatusOK, "Account detail fetched successfully", account)
 }
 
 func (h *AccountHandler) GetTransactionByAccounts(c echo.Context) error {

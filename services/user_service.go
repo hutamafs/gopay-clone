@@ -1,10 +1,12 @@
 package services
 
 import (
-	"errors"
 	"gopay-clone/config"
+	apperrors "gopay-clone/errors"
 	"gopay-clone/models"
 	"gopay-clone/utils"
+
+	"gorm.io/gorm"
 )
 
 type UserService struct {
@@ -16,9 +18,17 @@ func NewUserService(db *config.Database) *UserService {
 }
 
 func (s *UserService) CreateUser(user *models.User) error {
-	if err := s.db.Create(user).Error; err != nil {
-		return err
+	// Check if user already exists
+	var existingUser models.User
+	if err := s.db.Where("email = ?", user.Email).First(&existingUser).Error; err == nil {
+		return apperrors.ErrUserExists
 	}
+
+	if err := s.db.Create(user).Error; err != nil {
+		return apperrors.NewInternalError("Failed to create user")
+	}
+
+	// Create default accounts
 	defaultAccounts := []models.Account{
 		{
 			Name:        "main wallet",
@@ -31,9 +41,10 @@ func (s *UserService) CreateUser(user *models.User) error {
 			UserId:      user.ID,
 		},
 	}
+
 	for _, account := range defaultAccounts {
 		if err := s.db.Create(&account).Error; err != nil {
-			return err
+			return apperrors.ErrAccountCreateFailed
 		}
 	}
 
@@ -42,38 +53,63 @@ func (s *UserService) CreateUser(user *models.User) error {
 
 func (s *UserService) GetUsers() ([]models.User, error) {
 	var users []models.User
-	results := s.db.Find(&users)
-	return users, results.Error
+	if err := s.db.Find(&users).Error; err != nil {
+		return nil, apperrors.NewInternalError("Failed to fetch users")
+	}
+	return users, nil
 }
 
 func (s *UserService) GetUserById(id uint) (*models.User, error) {
 	var user models.User
-	result := s.db.
+	err := s.db.
 		Preload("Accounts").
 		Preload("Contacts").
-		First(&user, id)
-	return &user, result.Error
+		First(&user, id).Error
+
+	if err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return nil, apperrors.ErrUserNotFound
+		}
+		return nil, apperrors.NewInternalError("Failed to fetch user")
+	}
+
+	return &user, nil
 }
 
 func (s *UserService) UpdateUser(user *models.User) error {
-	return s.db.Save(user).Error
+	if err := s.db.Save(user).Error; err != nil {
+		return apperrors.NewInternalError("Failed to update user")
+	}
+	return nil
 }
 
 func (s *UserService) DeleteUser(id uint) error {
-	return s.db.Delete(&models.User{}, id).Error
+	result := s.db.Delete(&models.User{}, id)
+	if result.Error != nil {
+		return apperrors.NewInternalError("Failed to delete user")
+	}
+	if result.RowsAffected == 0 {
+		return apperrors.ErrUserNotFound
+	}
+	return nil
 }
 
 func (s *UserService) Login(user *models.LoggedinUser) (string, error) {
 	var foundUser models.User
 	if err := s.db.Where("email = ?", user.Email).First(&foundUser).Error; err != nil {
-		return "", errors.New("email not found")
+		if err == gorm.ErrRecordNotFound {
+			return "", apperrors.ErrEmailNotFound
+		}
+		return "", apperrors.NewInternalError("Database error during login")
 	}
+
 	if !utils.CheckPassword(foundUser.Password, user.Password) {
-		return "", errors.New("invalid password")
+		return "", apperrors.ErrInvalidPassword
 	}
+
 	tokenString, err := utils.CreateToken(foundUser)
 	if err != nil {
-		return "", errors.New("error creating token")
+		return "", apperrors.ErrTokenCreation
 	}
 
 	return tokenString, nil

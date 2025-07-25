@@ -28,7 +28,7 @@ func (h *MerchantHandler) CreateMerchant(c echo.Context) error {
 	}
 	hashPassword, err := utils.HashPassword(req.Password)
 	if err != nil {
-		return err
+		return utils.SplitErrorResponse(c, err)
 	}
 
 	user := &models.User{
@@ -41,7 +41,7 @@ func (h *MerchantHandler) CreateMerchant(c echo.Context) error {
 	}
 
 	if err := h.userService.CreateUser(user); err != nil {
-		return utils.InternalErrorResponse(c, err)
+		return utils.SplitErrorResponse(c, err)
 	}
 	var merchantPhone = user.Phone
 
@@ -61,7 +61,7 @@ func (h *MerchantHandler) CreateMerchant(c echo.Context) error {
 		MerchantLogoURL: req.MerchantLogoURL,
 	}
 	if err := h.merchantService.CreateMerchant(merchant); err != nil {
-		return utils.InternalErrorResponse(c, err)
+		return utils.SplitErrorResponse(c, err)
 	}
 
 	return utils.SuccessResponse(c, http.StatusCreated, "Merchant created successfully", merchant)
@@ -70,7 +70,7 @@ func (h *MerchantHandler) CreateMerchant(c echo.Context) error {
 func (h *MerchantHandler) GetAllMerchants(c echo.Context) error {
 	merchants, err := h.merchantService.GetAllMerchants()
 	if err != nil {
-		return utils.ValidationErrorResponse(c, err)
+		return utils.SplitErrorResponse(c, err)
 	}
 	return utils.SuccessResponse(c, http.StatusOK, "Merchants fetched successfully", merchants)
 }
@@ -83,7 +83,7 @@ func (h *MerchantHandler) GetMerchantByID(c echo.Context) error {
 
 	merchant, err := h.merchantService.GetMerchantByID(uint(id))
 	if err != nil {
-		return utils.NotFoundResponse(c, "id")
+		return utils.SplitErrorResponse(c, err)
 	}
 	return utils.SuccessResponse(c, http.StatusOK, "Merchant Profile fetched successfully", merchant)
 }
@@ -95,12 +95,12 @@ func (h *MerchantHandler) UpdateMerchantByID(c echo.Context) error {
 	}
 	merchant, err := h.merchantService.GetMerchantByID(uint(id))
 	if err != nil {
-		return utils.NotFoundResponse(c, "id")
+		return utils.SplitErrorResponse(c, err)
 	}
 	loggedInUserId := utils.CLaimJwt(c)
 
 	if merchant.UserId != uint(loggedInUserId) {
-		return utils.ForbiddenResponse(c, errors.New("unauthorized access"))
+		return utils.ValidationErrorResponse(c, errors.New("unauthorized: merchant can only update their own profile"))
 	}
 	var req validator.UpdateMerchantRequest
 	if err := utils.BindAndValidate(c, &req, validator.ValidateUpdateMerchant); err != nil {
@@ -120,7 +120,11 @@ func (h *MerchantHandler) UpdateMerchantByID(c echo.Context) error {
 	}
 
 	if err := h.merchantService.UpdateMerchant(uint(id), updatedMerchant); err != nil {
-		return utils.InternalErrorResponse(c, err)
+		return utils.SplitErrorResponse(c, err)
 	}
-	return utils.SuccessResponse(c, http.StatusOK, "Merchant profile updated successfully", merchant)
+	merchantUpdated, err := h.merchantService.GetMerchantByID(uint(id))
+	if err != nil {
+		return utils.SplitErrorResponse(c, err)
+	}
+	return utils.SuccessResponse(c, http.StatusOK, "Merchant profile updated successfully", merchantUpdated)
 }

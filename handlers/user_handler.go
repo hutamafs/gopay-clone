@@ -29,7 +29,7 @@ func (h *UserHandler) CreateUser(c echo.Context) error {
 	}
 	hashPassword, err := utils.HashPassword(req.Password)
 	if err != nil {
-		return err
+		return utils.InternalErrorResponse(c, err)
 	}
 
 	user := &models.User{
@@ -42,7 +42,7 @@ func (h *UserHandler) CreateUser(c echo.Context) error {
 	}
 
 	if err := h.userService.CreateUser(user); err != nil {
-		return utils.InternalErrorResponse(c, err)
+		return utils.SplitErrorResponse(c, err)
 	}
 
 	return utils.SuccessResponse(c, http.StatusCreated, "User created successfully", user)
@@ -61,8 +61,9 @@ func (h *UserHandler) Login(c echo.Context) error {
 
 	token, err := h.userService.Login(user)
 	if err != nil {
-		return utils.ValidationErrorResponse(c, err)
+		return utils.SplitErrorResponse(c, err)
 	}
+
 	// Set the Authorization header with Bearer token
 	c.Response().Header().Set("Authorization", "Bearer "+token)
 
@@ -81,7 +82,7 @@ func (h *UserHandler) GetUserById(c echo.Context) error {
 
 	user, err := h.userService.GetUserById(uint(id))
 	if err != nil {
-		return utils.NotFoundResponse(c, "id")
+		return utils.SplitErrorResponse(c, err)
 	}
 	return utils.SuccessResponse(c, http.StatusOK, "User fetched successfully", user)
 }
@@ -89,9 +90,9 @@ func (h *UserHandler) GetUserById(c echo.Context) error {
 func (h *UserHandler) GetAllUsers(c echo.Context) error {
 	users, err := h.userService.GetUsers()
 	if err != nil {
-		return utils.ValidationErrorResponse(c, err)
+		return utils.SplitErrorResponse(c, err)
 	}
-	return utils.SuccessResponse(c, http.StatusOK, "Users fetched successfully, users", users)
+	return utils.SuccessResponse(c, http.StatusOK, "Users fetched successfully", users)
 }
 
 func (h *UserHandler) UpdateUser(c echo.Context) error {
@@ -101,7 +102,7 @@ func (h *UserHandler) UpdateUser(c echo.Context) error {
 	}
 	user, err := h.userService.GetUserById(uint(id))
 	if err != nil {
-		return utils.NotFoundResponse(c, "id")
+		return utils.SplitErrorResponse(c, err)
 	}
 	loggedInUserId := utils.CLaimJwt(c)
 
@@ -122,7 +123,7 @@ func (h *UserHandler) UpdateUser(c echo.Context) error {
 	if req.Password != nil {
 		hashedPassword, err := utils.HashPassword(*req.Password)
 		if err != nil {
-			return err
+			return utils.InternalErrorResponse(c, err)
 		}
 		user.Password = hashedPassword
 	}
@@ -131,7 +132,7 @@ func (h *UserHandler) UpdateUser(c echo.Context) error {
 	}
 
 	if err := h.userService.UpdateUser(user); err != nil {
-		return utils.InternalErrorResponse(c, err)
+		return utils.SplitErrorResponse(c, err)
 	}
 	return utils.SuccessResponse(c, http.StatusOK, "User updated successfully", user)
 }
@@ -142,9 +143,9 @@ func (h *UserHandler) DeleteUser(c echo.Context) error {
 		return utils.ValidationErrorResponse(c, err)
 	}
 	if err := h.userService.DeleteUser(uint(id)); err != nil {
-		return utils.InternalErrorResponse(c, err)
+		return utils.SplitErrorResponse(c, err)
 	}
-	return utils.SuccessResponse(c, http.StatusOK, "user deleted", nil)
+	return utils.SuccessResponse(c, http.StatusOK, "User deleted successfully", nil)
 }
 
 func (h *UserHandler) GetAccountsByUser(c echo.Context) error {
@@ -160,7 +161,7 @@ func (h *UserHandler) GetAccountsByUser(c echo.Context) error {
 
 	accounts, err := h.accountService.GetAccountsByUser(uint(userId))
 	if err != nil {
-		return utils.NotFoundResponse(c, "user id")
+		return utils.SplitErrorResponse(c, err)
 	}
 	return utils.SuccessResponse(c, http.StatusOK, "Accounts for user fetched successfully", accounts)
 }

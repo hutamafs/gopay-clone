@@ -52,14 +52,13 @@ func (h *OrderHandler) CreateOrder(c echo.Context) error {
 	loggedInUserId := utils.CLaimJwt(c)
 	_, err := h.userService.GetUserById(uint(loggedInUserId))
 	if err != nil {
-		return utils.ValidationErrorResponse(c, err)
+		return utils.SplitErrorResponse(c, err)
 	}
 
 	_, errMerchant := h.merchantService.GetMerchantByID(uint(req.MerchantID))
 
 	if errMerchant != nil {
-		fmt.Print(errMerchant)
-		return utils.ValidationErrorResponse(c, errMerchant)
+		return utils.SplitErrorResponse(c, errMerchant)
 	}
 
 	var totalAmount float64
@@ -67,7 +66,7 @@ func (h *OrderHandler) CreateOrder(c echo.Context) error {
 	for _, o := range req.Items {
 		menuItem, err := h.menuService.GetMenuItemByID(o.MenuItemID)
 		if err != nil || !menuItem.IsAvailable {
-			return utils.ValidationErrorResponse(c, err)
+			return utils.SplitErrorResponse(c, err)
 		}
 		itemTotal := float64(o.Quantity) * menuItem.Price
 		totalAmount += itemTotal
@@ -80,14 +79,16 @@ func (h *OrderHandler) CreateOrder(c echo.Context) error {
 		})
 	}
 	totalAmount = math.Round((totalAmount+6.78)*100) / 100
+	// fmt.Print(userAccount.Balance)
 	userAccount, er := h.accountService.GetMainBalanceAccount(uint(loggedInUserId))
 	if er != nil || userAccount == nil {
-		return utils.ValidationErrorResponse(c, errors.New("user account not found"))
+		return utils.SplitErrorResponse(c, er)
 	}
 	merchantAccount, e := h.accountService.GetMainBalanceAccount(uint(req.MerchantID))
 	if e != nil || merchantAccount == nil {
-		return utils.ValidationErrorResponse(c, errors.New("merchant account not found"))
+		return utils.SplitErrorResponse(c, e)
 	}
+
 	// for now, point system will now be used yet
 	if userAccount.Balance < totalAmount {
 		return utils.ValidationErrorResponse(c, errors.New("insufficient balance"))
@@ -105,17 +106,19 @@ func (h *OrderHandler) CreateOrder(c echo.Context) error {
 	// get the driver
 	availableDrivers, err := h.driverService.GetAvailableDrivers()
 	if err != nil || len(availableDrivers) == 0 {
-		return utils.ValidationErrorResponse(c, errors.New("no available driver"))
+		return utils.SplitErrorResponse(c, err)
 	}
 	selectedDriver := availableDrivers[0]
+	fmt.Print("halohalo")
+	fmt.Print(selectedDriver.UserId)
 	order.DriverID = &selectedDriver.ID
 
 	if err := h.driverService.UpdateDriverStatus(selectedDriver.ID, "sending"); err != nil {
-		return err
+		return utils.SplitErrorResponse(c, err)
 	}
 
 	if err := h.orderService.CreateOrder(order, orderItems); err != nil {
-		return utils.InternalErrorResponse(c, err)
+		return utils.SplitErrorResponse(c, err)
 	}
 
 	transaction := &models.Transaction{
@@ -131,11 +134,11 @@ func (h *OrderHandler) CreateOrder(c echo.Context) error {
 
 	if err := h.transactionService.CreateTransaction(transaction); err != nil {
 		h.orderService.DeleteOrder(order.ID)
-		return utils.ValidationErrorResponse(c, err)
+		return utils.SplitErrorResponse(c, err)
 	}
 	createdOrder, err := h.orderService.GetOrderByID(uint(order.ID))
 	if err != nil {
-		return utils.NotFoundResponse(c, "id")
+		return utils.SplitErrorResponse(c, err)
 	}
 	return utils.SuccessResponse(c, http.StatusOK, "Order created successfully", createdOrder)
 }
@@ -147,29 +150,29 @@ func (h *OrderHandler) UpdateOrderStatus(c echo.Context) error {
 	}
 	var req validator.UpdateOrderStatusRequest
 	if err := utils.BindAndValidate(c, &req, validator.ValidateUpdateOrderStatus); err != nil {
-		return utils.ValidationErrorResponse(c, err)
+		return err
 	}
 
 	loggedInUserId := utils.CLaimJwt(c)
 	order, err := h.orderService.GetOrderByID(uint(orderId))
 	if err != nil {
-		return utils.NotFoundResponse(c, "id")
+		return utils.SplitErrorResponse(c, err)
 	}
 
 	// check if the logged in id can update it
 	if err := h.validateStatusUpdate(order, uint(loggedInUserId), string(req.Status)); err != nil {
-		return utils.ForbiddenResponse(c, errors.New("unauthorized to update the status"))
+		return utils.SplitErrorResponse(c, err)
 	}
 
 	// do the actual update
 	if err := h.orderService.UpdateOrderStatus(uint(orderId), string(req.Status)); err != nil {
-		return utils.InternalErrorResponse(c, err)
+		return utils.SplitErrorResponse(c, err)
 	}
 
 	// update the transaction as well if the status is completed
 	if req.Status == models.OrderCompleted {
 		if err := h.transactionService.UpdateTransactionWhenFoodOrderCompleted(order.ID); err != nil {
-			return utils.InternalErrorResponse(c, err)
+			return utils.SplitErrorResponse(c, err)
 		}
 	}
 
@@ -184,7 +187,7 @@ func (h *OrderHandler) GetOrderByID(c echo.Context) error {
 
 	order, err := h.orderService.GetOrderByID(uint(id))
 	if err != nil {
-		return utils.NotFoundResponse(c, "id")
+		return utils.SplitErrorResponse(c, err)
 	}
 
 	return utils.SuccessResponse(c, http.StatusOK, "Order detail fetched successfully", order)

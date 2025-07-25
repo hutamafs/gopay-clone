@@ -34,13 +34,10 @@ func (h *QRHandler) CreateQR(c echo.Context) error {
 	}
 
 	if err := h.qrService.CreateQR(qr); err != nil {
-		if err.Error() == "not found" {
-			return utils.NotFoundResponse(c, "receiver account")
-		}
-		return utils.InternalErrorResponse(c, err)
+		return utils.SplitErrorResponse(c, err)
 	}
 
-	return utils.SuccessResponse(c, http.StatusCreated, "qr created successfully", qr)
+	return utils.SuccessResponse(c, http.StatusCreated, "QR created successfully", qr)
 }
 
 func (h *QRHandler) ScanQr(c echo.Context) error {
@@ -53,13 +50,13 @@ func (h *QRHandler) ScanQr(c echo.Context) error {
 		return err
 	}
 
-	foundQr, error := h.qrService.GetQRById(uint(id))
-	if error != nil {
-		return utils.NotFoundResponse(c, "qr")
+	foundQr, err := h.qrService.GetQRById(uint(id))
+	if err != nil {
+		return utils.SplitErrorResponse(c, err)
 	}
 
 	if err := h.qrService.ScanQR(foundQr, uint(req.SenderAccountID)); err != nil {
-		return utils.ValidationErrorResponse(c, err)
+		return utils.SplitErrorResponse(c, err)
 	}
-	return utils.SuccessResponse(c, http.StatusOK, "qr scanned", foundQr)
+	return utils.SuccessResponse(c, http.StatusOK, "QR scanned successfully", foundQr)
 }

@@ -26,7 +26,7 @@ func (h *DriverHandler) CreateDriver(c echo.Context) error {
 	}
 	hashPassword, err := utils.HashPassword(req.Password)
 	if err != nil {
-		return err
+		return utils.SplitErrorResponse(c, err)
 	}
 
 	user := &models.User{
@@ -35,11 +35,11 @@ func (h *DriverHandler) CreateDriver(c echo.Context) error {
 		Password:          hashPassword,
 		Phone:             req.Phone,
 		ProfilePictureURL: req.ProfilePictureURL,
-		Type:              "merchant",
+		Type:              "driver",
 	}
 
 	if err := h.userService.CreateUser(user); err != nil {
-		return utils.InternalErrorResponse(c, err)
+		return utils.SplitErrorResponse(c, err)
 	}
 
 	driver := &models.DriverProfile{
@@ -52,7 +52,7 @@ func (h *DriverHandler) CreateDriver(c echo.Context) error {
 	}
 
 	if err := h.driverService.CreateDriverProfile(driver); err != nil {
-		return utils.InternalErrorResponse(c, err)
+		return utils.SplitErrorResponse(c, err)
 	}
 
 	return utils.SuccessResponse(c, http.StatusCreated, "Driver created successfully", driver)
@@ -63,7 +63,7 @@ func (h *DriverHandler) GetDriverByID(c echo.Context) error {
 
 	driver, err := h.driverService.GetDriverByUserID(uint(loggedInUserId))
 	if err != nil {
-		return utils.NotFoundResponse(c, "driver profile")
+		return utils.SplitErrorResponse(c, err)
 	}
 
 	return utils.SuccessResponse(c, http.StatusOK, "Driver profile fetched successfully", driver)
@@ -72,7 +72,7 @@ func (h *DriverHandler) GetDriverByID(c echo.Context) error {
 func (h *DriverHandler) GetAllDrivers(c echo.Context) error {
 	drivers, err := h.driverService.GetAllDrivers()
 	if err != nil {
-		return utils.InternalErrorResponse(c, err)
+		return utils.SplitErrorResponse(c, err)
 	}
 
 	return utils.SuccessResponse(c, http.StatusOK, "Drivers fetched successfully", drivers)
@@ -91,7 +91,7 @@ func (h *DriverHandler) GetAvailableDrivers(c echo.Context) error {
 	}
 
 	if err != nil {
-		return utils.InternalErrorResponse(c, err)
+		return utils.SplitErrorResponse(c, err)
 	}
 
 	return utils.SuccessResponse(c, http.StatusOK, "Available drivers fetched successfully", drivers)
@@ -103,7 +103,7 @@ func (h *DriverHandler) UpdateDriverProfile(c echo.Context) error {
 	// Get driver profile to verify ownership
 	driver, err := h.driverService.GetDriverByUserID(uint(loggedInUserId))
 	if err != nil {
-		return utils.NotFoundResponse(c, "driver profile")
+		return utils.SplitErrorResponse(c, err)
 	}
 
 	var req validator.UpdateDriverRequest
@@ -129,7 +129,7 @@ func (h *DriverHandler) UpdateDriverProfile(c echo.Context) error {
 	}
 
 	if err := h.driverService.UpdateDriver(driver.ID, updates); err != nil {
-		return utils.InternalErrorResponse(c, err)
+		return utils.SplitErrorResponse(c, err)
 	}
 
 	return utils.SuccessResponse(c, http.StatusOK, "Driver profile updated successfully", nil)
@@ -142,9 +142,13 @@ func (h *DriverHandler) UpdateDriverStatus(c echo.Context) error {
 	if err := utils.BindAndValidate(c, &req, validator.ValidateUpdateDriverStatus); err != nil {
 		return err
 	}
+	driver, err := h.driverService.GetDriverByUserID(uint(loggedInUserId))
+	if err != nil {
+		return utils.SplitErrorResponse(c, err)
+	}
 
-	if err := h.driverService.UpdateDriverStatus(uint(loggedInUserId), req.Status); err != nil {
-		return utils.InternalErrorResponse(c, err)
+	if err := h.driverService.UpdateDriverStatus(uint(driver.ID), req.Status); err != nil {
+		return utils.SplitErrorResponse(c, err)
 	}
 
 	return utils.SuccessResponse(c, http.StatusOK, "Driver status updated successfully", nil)
@@ -159,7 +163,7 @@ func (h *DriverHandler) UpdateDriverLocation(c echo.Context) error {
 	}
 
 	if err := h.driverService.UpdateDriverLocation(uint(loggedInUserId), req.CurrentLocation); err != nil {
-		return utils.InternalErrorResponse(c, err)
+		return utils.SplitErrorResponse(c, err)
 	}
 
 	return utils.SuccessResponse(c, http.StatusOK, "Driver location updated successfully", nil)
@@ -171,11 +175,11 @@ func (h *DriverHandler) DeleteDriverProfile(c echo.Context) error {
 	// Get driver profile to verify ownership and get ID
 	driver, err := h.driverService.GetDriverByUserID(uint(loggedInUserId))
 	if err != nil {
-		return utils.NotFoundResponse(c, "driver profile")
+		return utils.SplitErrorResponse(c, err)
 	}
 
 	if err := h.driverService.DeleteDriver(driver.ID); err != nil {
-		return utils.InternalErrorResponse(c, err)
+		return utils.SplitErrorResponse(c, err)
 	}
 
 	return utils.SuccessResponse(c, http.StatusOK, "Driver profile deleted successfully", nil)
