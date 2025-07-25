@@ -136,30 +136,30 @@ Authorization: Bearer <your-jwt-token>
 #### **🔐 Authentication**
 
 ```http
-POST /api/v1/public/register     # Register new user
-POST /api/v1/public/login        # User login
+POST /api/v1/public/users              # Register new user
+POST /api/v1/public/users/login        # User login
 ```
 
 #### **👤 User Management**
 
 ```http
-GET    /api/v1/users/profile     # Get user profile
-PUT    /api/v1/users/profile     # Update user profile
-GET    /api/v1/users/:id/orders  # Get user's orders
+GET    /api/v1/users/:user_id           # Get user by user id
+PUT    /api/v1/users/:user_id           # Update user profile
+GET    /api/v1/users/:user_id/orders    # Get user's orders
 ```
 
 #### **🏪 Merchant Management**
 
 ```http
-POST   /api/v1/public/merchants                         # Register merchant
-GET    /api/v1/merchants                                # List all merchants
-GET    /api/v1/merchants/:id                            # Get merchant details
-PUT    /api/v1/merchants/:id                            # Update merchant profile
-GET    /api/v1/merchants/:merchant_id/menu-item         # Get merchant's menu
-POST   /api/v1/merchants/:merchant_id/menu-item         # Add menu item
-PUT    /api/v1/merchants/:merchant_id/menu-item/:id     # Update menu item
-DELETE /api/v1/merchants/:merchant_id/menu-items/:id    # Delete menu item
-GET    /api/v1/menus/menu-items                         # Get all menu item
+POST   /api/v1/public/merchants                                  # Register merchant
+GET    /api/v1/merchants                                         # List all merchants
+GET    /api/v1/merchants/:merchant_id                            # Get merchant details
+PUT    /api/v1/merchants/:merchant_id                            # Update merchant profile
+GET    /api/v1/merchants/:merchant_id/menu-item                  # Get merchant's menu
+POST   /api/v1/merchants/:merchant_id/menu-item                  # Add menu item
+PUT    /api/v1/merchants/:merchant_id/menu-item/:menu_id         # Update menu item
+DELETE /api/v1/merchants/:merchant_id/menu-items/:menu_id        # Delete menu item
+GET    /api/v1/menus/menu-items                                  # Get all menu item
 ```
 
 #### **💰 Account & Wallet**
@@ -176,35 +176,35 @@ PUT    /api/v1/accounts/:account_id                          # Update account de
 #### **💳 Transactions**
 
 ```http
-GET    /api/v1/transactions               # Get user transactions
-POST   /api/v1/transactions               # Create transaction
-GET    /api/v1/transactions/:id           # Get transaction details
+POST   /api/v1/transactions                           # Create transaction
+GET    /api/v1/transactions/:transaction_id           # Get transaction details
+PUT    /api/v1/transactions/:transaction_id           # Update transaction details
 ```
 
 #### **📦 Orders (GoFood)**
 
 ```http
-POST   /api/v1/public/orders              # Create new order
-GET    /api/v1/orders/:id                 # Get order details
-PUT    /api/v1/orders/:id/status          # Update order status
+POST   /api/v1/orders                           # Create new order
+GET    /api/v1/orders/:order_id                 # Get order details
+PUT    /api/v1/orders/:order_id/status          # Update order status
 ```
 
 #### **🚗 Driver Management**
 
 ```http
-GET    /api/v1/public/drivers             # List all drivers
-POST   /api/v1/public/drivers             # Register driver
-GET    /api/v1/drivers/available          # Get available drivers
-GET    /api/v1/drivers/:id                # Get driver details
-PUT    /api/v1/drivers/profile            # Update driver profile
-PUT    /api/v1/drivers/status             # Update driver status
-PUT    /api/v1/drivers/location           # Update driver location
-DELETE /api/v1/drivers/profile            # Delete driver profile
+GET    /api/v1/public/drivers                   # List all drivers
+POST   /api/v1/public/drivers                   # Register driver
+GET    /api/v1/drivers/available                # Get available drivers
+GET    /api/v1/drivers/:driver_id               # Get driver details
+PUT    /api/v1/drivers/profile                  # Update driver profile
+PUT    /api/v1/drivers/status                   # Update driver status
+PUT    /api/v1/drivers/location                 # Update driver location
+DELETE /api/v1/drivers/profile                  # Delete driver profile
 ```
 
 ## 🔄 **Business Flows**
 
-### **Order Flow**
+### **Food Order Flow**
 
 1. **Customer places order** → Validates menu items & calculates total
 2. **Balance check** → Ensures sufficient wallet balance
@@ -311,11 +311,11 @@ CMD ["./main"]
 - **MenuItem**: Menu items with pricing and availability
 - **Order**: Order details with items and status
 - **Transaction**: Financial records with audit trails
-- **DriverProfile**: Driver information and vehicle details
+- **Driver**: Driver information and vehicle details
 
 ### **Relationships**
 
-- User → Multiple Accounts (1:n)
+- User → Multiple Accounts (1:n) ( limit by 2 accounts for now )
 - User → Multiple Orders (1:n)
 - Merchant → Multiple MenuItems (1:n)
 - Order → Multiple OrderItems (1:n)
@@ -342,24 +342,13 @@ CMD ["./main"]
 ## 🚀 **Future Enhancements**
 
 - [ ] QR Payment System
+- [ ] Top up features using xendit / stripe
+- [ ] Verification with driver license
 - [ ] Real-time notifications
 - [ ] GoRide service (ride-hailing)
-- [ ] Admin dashboard
 - [ ] WebSocket integration for live updates
 - [ ] Advanced driver selection algorithms
 - [ ] Mobile app integration
-
-## 🤝 **Contributing**
-
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
-## 📝 **License**
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ## 🙏 **Acknowledgments**
 
