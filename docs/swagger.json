@@ -1,0 +1,371 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "GoClone super app API",
+        "title": "GoClone API",
+        "contact": {},
+        "version": "1.0"
+    },
+    "host": "localhost:8080",
+    "basePath": "/",
+    "paths": {
+        "/drivers": {
+            "get": {
+                "description": "Retrieve all registered drivers",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Driver"
+                ],
+                "summary": "List all drivers",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.DriverProfile"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
+        "/drivers/available": {
+            "get": {
+                "description": "Retrieve all available drivers",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Driver"
+                ],
+                "summary": "List all available drivers",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.DriverProfile"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
+        "/drivers/location": {
+            "put": {
+                "description": "Update location of a driver",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Driver"
+                ],
+                "summary": "Update driver location by ID",
+                "parameters": [
+                    {
+                        "description": "Updated driver current location",
+                        "name": "driver",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/validator.UpdateDriverLocationRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.DriverProfile"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
+        "/drivers/profile": {
+            "put": {
+                "description": "Update details of a driver",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Driver"
+                ],
+                "summary": "Update driver by ID",
+                "parameters": [
+                    {
+                        "description": "Updated driver profile",
+                        "name": "driver",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/validator.UpdateDriverRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.DriverProfile"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
+        "/drivers/profilee": {
+            "delete": {
+                "description": "delete driver profile",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Driver"
+                ],
+                "summary": "Delete Driver profile by ID",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
+        "/drivers/status": {
+            "put": {
+                "description": "Update status of a driver",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Driver"
+                ],
+                "summary": "Update driver status by ID",
+                "parameters": [
+                    {
+                        "description": "Updated driver status",
+                        "name": "driver",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/validator.UpdateDriverStatusRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.DriverProfile"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "models.DriverProfile": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "current_location": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "is_verified": {
+                    "type": "boolean"
+                },
+                "license_number": {
+                    "type": "string"
+                },
+                "license_picture_url": {
+                    "type": "string"
+                },
+                "rating": {
+                    "type": "number"
+                },
+                "status": {
+                    "description": "offline online suspend",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.DriverStatus"
+                        }
+                    ]
+                },
+                "updated_at": {
+                    "type": "string"
+                },
+                "user_id": {
+                    "type": "integer"
+                },
+                "vehicle_plate": {
+                    "type": "string"
+                },
+                "vehicle_type": {
+                    "$ref": "#/definitions/models.VehicleType"
+                }
+            }
+        },
+        "models.DriverStatus": {
+            "type": "string",
+            "enum": [
+                "offline",
+                "online",
+                "suspended",
+                "sending"
+            ],
+            "x-enum-varnames": [
+                "Offline",
+                "Online",
+                "Suspended",
+                "Sending"
+            ]
+        },
+        "models.VehicleType": {
+            "type": "string",
+            "enum": [
+                "car",
+                "motorcycle"
+            ],
+            "x-enum-varnames": [
+                "Car",
+                "MotorCycle"
+            ]
+        },
+        "validator.UpdateDriverLocationRequest": {
+            "type": "object",
+            "required": [
+                "current_location"
+            ],
+            "properties": {
+                "current_location": {
+                    "type": "string"
+                }
+            }
+        },
+        "validator.UpdateDriverRequest": {
+            "type": "object",
+            "properties": {
+                "current_location": {
+                    "type": "string"
+                },
+                "license_number": {
+                    "type": "string"
+                },
+                "license_picture_url": {
+                    "type": "string"
+                },
+                "vehicle_plate": {
+                    "type": "string"
+                },
+                "vehicle_type": {
+                    "$ref": "#/definitions/models.VehicleType"
+                }
+            }
+        },
+        "validator.UpdateDriverStatusRequest": {
+            "type": "object",
+            "required": [
+                "status"
+            ],
+            "properties": {
+                "status": {
+                    "type": "string"
+                }
+            }
+        }
+    },
+    "securityDefinitions": {
+        "BearerAuth": {
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header"
+        }
+    }
+}

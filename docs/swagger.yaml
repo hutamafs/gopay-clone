@@ -1,0 +1,248 @@
+basePath: /
+definitions:
+  models.DriverProfile:
+    properties:
+      created_at:
+        type: string
+      current_location:
+        type: string
+      id:
+        type: integer
+      is_verified:
+        type: boolean
+      license_number:
+        type: string
+      license_picture_url:
+        type: string
+      rating:
+        type: number
+      status:
+        allOf:
+        - $ref: '#/definitions/models.DriverStatus'
+        description: offline online suspend
+      updated_at:
+        type: string
+      user_id:
+        type: integer
+      vehicle_plate:
+        type: string
+      vehicle_type:
+        $ref: '#/definitions/models.VehicleType'
+    type: object
+  models.DriverStatus:
+    enum:
+    - offline
+    - online
+    - suspended
+    - sending
+    type: string
+    x-enum-varnames:
+    - Offline
+    - Online
+    - Suspended
+    - Sending
+  models.VehicleType:
+    enum:
+    - car
+    - motorcycle
+    type: string
+    x-enum-varnames:
+    - Car
+    - MotorCycle
+  validator.UpdateDriverLocationRequest:
+    properties:
+      current_location:
+        type: string
+    required:
+    - current_location
+    type: object
+  validator.UpdateDriverRequest:
+    properties:
+      current_location:
+        type: string
+      license_number:
+        type: string
+      license_picture_url:
+        type: string
+      vehicle_plate:
+        type: string
+      vehicle_type:
+        $ref: '#/definitions/models.VehicleType'
+    type: object
+  validator.UpdateDriverStatusRequest:
+    properties:
+      status:
+        type: string
+    required:
+    - status
+    type: object
+host: localhost:8080
+info:
+  contact: {}
+  description: GoClone super app API
+  title: GoClone API
+  version: "1.0"
+paths:
+  /drivers:
+    get:
+      description: Retrieve all registered drivers
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.DriverProfile'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+      summary: List all drivers
+      tags:
+      - Driver
+  /drivers/available:
+    get:
+      description: Retrieve all available drivers
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.DriverProfile'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+      summary: List all available drivers
+      tags:
+      - Driver
+  /drivers/location:
+    put:
+      consumes:
+      - application/json
+      description: Update location of a driver
+      parameters:
+      - description: Updated driver current location
+        in: body
+        name: driver
+        required: true
+        schema:
+          $ref: '#/definitions/validator.UpdateDriverLocationRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.DriverProfile'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Update driver location by ID
+      tags:
+      - Driver
+  /drivers/profile:
+    put:
+      consumes:
+      - application/json
+      description: Update details of a driver
+      parameters:
+      - description: Updated driver profile
+        in: body
+        name: driver
+        required: true
+        schema:
+          $ref: '#/definitions/validator.UpdateDriverRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.DriverProfile'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Update driver by ID
+      tags:
+      - Driver
+  /drivers/profilee:
+    delete:
+      consumes:
+      - application/json
+      description: delete driver profile
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Delete Driver profile by ID
+      tags:
+      - Driver
+  /drivers/status:
+    put:
+      consumes:
+      - application/json
+      description: Update status of a driver
+      parameters:
+      - description: Updated driver status
+        in: body
+        name: driver
+        required: true
+        schema:
+          $ref: '#/definitions/validator.UpdateDriverStatusRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.DriverProfile'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Update driver status by ID
+      tags:
+      - Driver
+securityDefinitions:
+  BearerAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"
