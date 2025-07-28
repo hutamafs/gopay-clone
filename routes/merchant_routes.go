@@ -23,7 +23,7 @@ func RegisterMerchantRoutes(api *echo.Group, db *config.Database, jwtMiddleware 
 	{
 		publicMerchantAPI.POST("", merchantHandler.CreateMerchant)
 		publicMerchantAPI.GET("", merchantHandler.GetAllMerchants)
-		merchants.GET("/:merchant_id", merchantHandler.GetMerchantByID)
+		publicMerchantAPI.GET("/:merchant_id", merchantHandler.GetMerchantByID)
 		merchants.PUT("/:merchant_id", merchantHandler.UpdateMerchantByID)
 
 		// menu item
