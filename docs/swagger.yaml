@@ -1,5 +1,53 @@
 basePath: /
 definitions:
+  ErrorResponse:
+    properties:
+      error:
+        $ref: '#/definitions/utils.ErrorDetail'
+      message:
+        example: the model struct not found
+        type: string
+      success:
+        example: false
+        type: boolean
+    type: object
+  models.Account:
+    properties:
+      account_type:
+        $ref: '#/definitions/models.AccountType'
+      balance:
+        type: number
+      created_at:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      qr_codes:
+        items:
+          $ref: '#/definitions/models.QrCode'
+        type: array
+      received_transactions:
+        items:
+          $ref: '#/definitions/models.Transaction'
+        type: array
+      sent_transactions:
+        items:
+          $ref: '#/definitions/models.Transaction'
+        type: array
+      updated_at:
+        type: string
+      user_id:
+        type: integer
+    type: object
+  models.AccountType:
+    enum:
+    - main_balance
+    - points
+    type: string
+    x-enum-varnames:
+    - MainBalance
+    - Points
   models.DriverProfile:
     properties:
       created_at:
@@ -41,6 +89,116 @@ definitions:
     - Online
     - Suspended
     - Sending
+  models.QrCode:
+    properties:
+      amount:
+        type: number
+      created_at:
+        type: string
+      expires_at:
+        type: string
+      id:
+        type: integer
+      is_used:
+        type: boolean
+      receiver_account_id:
+        type: integer
+      updated_at:
+        type: string
+      url:
+        type: string
+    type: object
+  models.ServiceType:
+    enum:
+    - food
+    - ride
+    - none
+    type: string
+    x-enum-comments:
+      ServiceNone: for regular transfers
+    x-enum-descriptions:
+    - for regular transfers
+    x-enum-varnames:
+    - ServiceFood
+    - ServiceRide
+    - ServiceNone
+  models.Transaction:
+    properties:
+      amount:
+        type: number
+      category:
+        $ref: '#/definitions/models.TransactionCategory'
+      created_at:
+        type: string
+      description:
+        type: string
+      id:
+        type: integer
+      qr_code:
+        $ref: '#/definitions/models.QrCode'
+      qr_code_id:
+        type: integer
+      receiver_account_id:
+        type: integer
+      sender_account_id:
+        type: integer
+      service_id:
+        description: optional because it might be just a transfer // this could be
+          ride.id, order.id (comes from food)
+        type: integer
+      service_type:
+        $ref: '#/definitions/models.ServiceType'
+      status:
+        $ref: '#/definitions/models.TransactionStatus'
+      type:
+        $ref: '#/definitions/models.TransactionType'
+      updated_at:
+        type: string
+    type: object
+  models.TransactionCategory:
+    enum:
+    - food
+    - transport
+    - bills
+    - entertainment
+    - transfer
+    - other
+    type: string
+    x-enum-comments:
+      TransferCat: for example moving balance from 1 to another user
+    x-enum-descriptions:
+    - for example moving balance from 1 to another user
+    x-enum-varnames:
+    - Food
+    - Transport
+    - Bills
+    - Entertainment
+    - TransferCat
+    - Other
+  models.TransactionStatus:
+    enum:
+    - pending
+    - completed
+    - failed
+    - cancelled
+    type: string
+    x-enum-varnames:
+    - TransactionPending
+    - TransactionCompleted
+    - TransactionFailed
+    - TransactionCancelled
+  models.TransactionType:
+    enum:
+    - payment
+    - transfer
+    - topup
+    - cashback
+    type: string
+    x-enum-varnames:
+    - Payment
+    - Transfer
+    - Topup
+    - Cashback
   models.VehicleType:
     enum:
     - car
@@ -49,6 +207,100 @@ definitions:
     x-enum-varnames:
     - Car
     - MotorCycle
+  utils.APISuccessResponse:
+    properties:
+      data: {}
+      message:
+        example: Operation successful
+        type: string
+      success:
+        example: true
+        type: boolean
+    type: object
+  utils.ErrorAuth:
+    properties:
+      code:
+        example: "401"
+        type: string
+      message:
+        example: need jwt
+        type: string
+      type:
+        example: authentication error
+        type: string
+    type: object
+  utils.ErrorDetail:
+    properties:
+      code:
+        example: "400"
+        type: string
+      message:
+        example: bad request message
+        type: string
+      type:
+        example: bad request
+        type: string
+    type: object
+  utils.ErrorNotFound:
+    properties:
+      code:
+        example: "404"
+        type: string
+      message:
+        example: not found message
+        type: string
+      type:
+        example: not found
+        type: string
+    type: object
+  validator.CreateAccountRequest:
+    properties:
+      balance:
+        type: number
+      name:
+        type: string
+      user_id:
+        type: integer
+    type: object
+  validator.CreateDriverRequest:
+    properties:
+      current_location:
+        type: string
+      email:
+        type: string
+      license_number:
+        type: string
+      license_picture_url:
+        type: string
+      name:
+        type: string
+      password:
+        minLength: 6
+        type: string
+      phone:
+        type: string
+      profile_picture_url:
+        type: string
+      user_type:
+        type: string
+      vehicle_plate:
+        type: string
+      vehicle_type:
+        $ref: '#/definitions/models.VehicleType'
+    required:
+    - email
+    - license_number
+    - name
+    - password
+    - phone
+    - vehicle_plate
+    - vehicle_type
+    type: object
+  validator.UpdateAccountRequest:
+    properties:
+      name:
+        type: string
+    type: object
   validator.UpdateDriverLocationRequest:
     properties:
       current_location:
@@ -83,9 +335,162 @@ info:
   title: GoClone API
   version: "1.0"
 paths:
-  /drivers:
+  /accounts:
     get:
-      description: Retrieve all registered drivers
+      description: Retrieve wallet balance
+      parameters:
+      - description: Account ID
+        in: path
+        name: account_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Account'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get latest available balance from an account
+      tags:
+      - Account
+    post:
+      consumes:
+      - application/json
+      description: Register a new wallet account
+      parameters:
+      - description: Created account
+        in: body
+        name: account
+        required: true
+        schema:
+          $ref: '#/definitions/validator.CreateAccountRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.Account'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Create a new wallet account
+      tags:
+      - Account
+  /accounts/:account_id:
+    put:
+      description: Update wallet account in this case the name
+      parameters:
+      - description: Account ID
+        in: path
+        name: account_id
+        required: true
+        type: integer
+      - description: Updated account name
+        in: body
+        name: account
+        required: true
+        schema:
+          $ref: '#/definitions/validator.UpdateAccountRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Account'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Update account detail e.g. name
+      tags:
+      - Account
+  /accounts/:account_id/detail:
+    get:
+      description: Get Account detail, the name, balance and user id
+      parameters:
+      - description: Account ID
+        in: path
+        name: account_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Account'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get account detail
+      tags:
+      - Account
+  /accounts/:account_id/transactions:
+    get:
+      description: Get all latest. transaction from single account
+      parameters:
+      - description: Account ID
+        in: path
+        name: account_id
+        required: true
+        type: integer
       produces:
       - application/json
       responses:
@@ -93,16 +498,23 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/models.DriverProfile'
+              $ref: '#/definitions/models.Account'
             type: array
         "400":
           description: Bad Request
           schema:
             additionalProperties: true
             type: object
-      summary: List all drivers
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get latest transactions from account
       tags:
-      - Driver
+      - Account
   /drivers/available:
     get:
       description: Retrieve all available drivers
@@ -112,14 +524,23 @@ paths:
         "200":
           description: OK
           schema:
-            items:
-              $ref: '#/definitions/models.DriverProfile'
-            type: array
+            allOf:
+            - $ref: '#/definitions/utils.APISuccessResponse'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/models.DriverProfile'
+                  type: array
+              type: object
         "400":
           description: Bad Request
           schema:
-            additionalProperties: true
-            type: object
+            allOf:
+            - $ref: '#/definitions/ErrorResponse'
+            - properties:
+                error:
+                  $ref: '#/definitions/utils.ErrorDetail'
+              type: object
       summary: List all available drivers
       tags:
       - Driver
@@ -141,16 +562,86 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/models.DriverProfile'
+            allOf:
+            - $ref: '#/definitions/utils.APISuccessResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/models.DriverProfile'
+              type: object
         "400":
           description: Bad Request
           schema:
-            additionalProperties: true
-            type: object
+            allOf:
+            - $ref: '#/definitions/ErrorResponse'
+            - properties:
+                error:
+                  $ref: '#/definitions/utils.ErrorDetail'
+              type: object
+      security:
+      - BearerAuth: []
       summary: Update driver location by ID
       tags:
       - Driver
   /drivers/profile:
+    delete:
+      responses: {}
+    get:
+      consumes:
+      - application/json
+      description: Get driver profile information for the authenticated user
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.APISuccessResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/models.DriverProfile'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            allOf:
+            - $ref: '#/definitions/ErrorResponse'
+            - properties:
+                error:
+                  $ref: '#/definitions/utils.ErrorDetail'
+              type: object
+        "401":
+          description: Unauthorized
+          schema:
+            allOf:
+            - $ref: '#/definitions/ErrorResponse'
+            - properties:
+                error:
+                  $ref: '#/definitions/utils.ErrorAuth'
+              type: object
+        "404":
+          description: Not Found
+          schema:
+            allOf:
+            - $ref: '#/definitions/ErrorResponse'
+            - properties:
+                error:
+                  $ref: '#/definitions/utils.ErrorNotFound'
+              type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            allOf:
+            - $ref: '#/definitions/ErrorResponse'
+            - properties:
+                error:
+                  $ref: '#/definitions/utils.ErrorDetail'
+              type: object
+      security:
+      - BearerAuth: []
+      summary: Get driver profile
+      tags:
+      - drivers
     put:
       consumes:
       - application/json
@@ -168,44 +659,33 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/models.DriverProfile'
+            allOf:
+            - $ref: '#/definitions/utils.APISuccessResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/models.DriverProfile'
+              type: object
         "400":
           description: Bad Request
           schema:
-            additionalProperties: true
-            type: object
+            allOf:
+            - $ref: '#/definitions/ErrorResponse'
+            - properties:
+                error:
+                  $ref: '#/definitions/utils.ErrorDetail'
+              type: object
         "404":
           description: Not Found
           schema:
-            additionalProperties: true
-            type: object
+            allOf:
+            - $ref: '#/definitions/ErrorResponse'
+            - properties:
+                error:
+                  $ref: '#/definitions/utils.ErrorNotFound'
+              type: object
+      security:
+      - BearerAuth: []
       summary: Update driver by ID
-      tags:
-      - Driver
-  /drivers/profilee:
-    delete:
-      consumes:
-      - application/json
-      description: delete driver profile
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            additionalProperties: true
-            type: object
-        "400":
-          description: Bad Request
-          schema:
-            additionalProperties: true
-            type: object
-        "404":
-          description: Not Found
-          schema:
-            additionalProperties: true
-            type: object
-      summary: Delete Driver profile by ID
       tags:
       - Driver
   /drivers/status:
@@ -226,18 +706,97 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/models.DriverProfile'
+            allOf:
+            - $ref: '#/definitions/utils.APISuccessResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/models.DriverProfile'
+              type: object
         "400":
           description: Bad Request
           schema:
-            additionalProperties: true
-            type: object
+            allOf:
+            - $ref: '#/definitions/ErrorResponse'
+            - properties:
+                error:
+                  $ref: '#/definitions/utils.ErrorDetail'
+              type: object
         "404":
           description: Not Found
           schema:
-            additionalProperties: true
-            type: object
+            allOf:
+            - $ref: '#/definitions/ErrorResponse'
+            - properties:
+                error:
+                  $ref: '#/definitions/utils.ErrorNotFound'
+              type: object
+      security:
+      - BearerAuth: []
       summary: Update driver status by ID
+      tags:
+      - Driver
+  /public/drivers:
+    get:
+      description: Retrieve all registered drivers
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.APISuccessResponse'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/models.DriverProfile'
+                  type: array
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            allOf:
+            - $ref: '#/definitions/ErrorResponse'
+            - properties:
+                error:
+                  $ref: '#/definitions/utils.ErrorDetail'
+              type: object
+      summary: List all drivers
+      tags:
+      - Driver
+    post:
+      consumes:
+      - application/json
+      description: Register a new driver account
+      parameters:
+      - description: Driver info
+        in: body
+        name: driver
+        required: true
+        schema:
+          $ref: '#/definitions/validator.CreateDriverRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.APISuccessResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/models.DriverProfile'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            allOf:
+            - $ref: '#/definitions/ErrorResponse'
+            - properties:
+                error:
+                  $ref: '#/definitions/utils.ErrorDetail'
+              type: object
+      summary: Create a new driver
       tags:
       - Driver
 securityDefinitions:

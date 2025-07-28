@@ -26,10 +26,9 @@ func NewDriverHandler(driverService *services.DriverService, userService *servic
 // @Accept json
 // @Produce json
 // @Param driver body validator.CreateDriverRequest true "Driver info"
-// @Success 201 {object} models.DriverProfile
-// @Failure 400 {object} map[string]interface{}
-// @Router /drivers [post]
-
+// @Success 201 {object} utils.APISuccessResponse{data=models.DriverProfile}
+// @Failure 400 {object} utils.APIErrorResponse{error=utils.ErrorDetail}
+// @Router /public/drivers [post]
 func (h *DriverHandler) CreateDriver(c echo.Context) error {
 	var req validator.CreateDriverRequest
 	if err := utils.BindAndValidate(c, &req, validator.ValidateCreateDriver); err != nil {
@@ -69,6 +68,19 @@ func (h *DriverHandler) CreateDriver(c echo.Context) error {
 	return utils.SuccessResponse(c, http.StatusCreated, "Driver created successfully", driver)
 }
 
+// GetDriverByID retrieves driver profile by user ID from JWT token
+// @Summary Get driver profile
+// @Description Get driver profile information for the authenticated user
+// @Tags drivers
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Success 200 {object} utils.APISuccessResponse{data=models.DriverProfile}
+// @Failure 400 {object}  utils.APIErrorResponse{error=utils.ErrorDetail}
+// @Failure 401 {object}  utils.APIErrorResponse{error=utils.ErrorAuth}
+// @Failure 404  {object} utils.APIErrorResponse{error=utils.ErrorNotFound}
+// @Failure 500 {object}  utils.APIErrorResponse{error=utils.ErrorDetail}
+// @Router /drivers/profile [get]
 func (h *DriverHandler) GetDriverByID(c echo.Context) error {
 	loggedInUserId := utils.CLaimJwt(c)
 
@@ -85,9 +97,9 @@ func (h *DriverHandler) GetDriverByID(c echo.Context) error {
 // @Description Retrieve all registered drivers
 // @Tags Driver
 // @Produce json
-// @Success 200 {array} models.DriverProfile
-// @Failure 400 {object} map[string]interface{}
-// @Router /drivers [get]
+// @Success 200 {object} utils.APISuccessResponse{data=[]models.DriverProfile}
+// @Failure 400 {object} utils.APIErrorResponse{error=utils.ErrorDetail}
+// @Router /public/drivers [get]
 func (h *DriverHandler) GetAllDrivers(c echo.Context) error {
 	drivers, err := h.driverService.GetAllDrivers()
 	if err != nil {
@@ -102,8 +114,10 @@ func (h *DriverHandler) GetAllDrivers(c echo.Context) error {
 // @Description Retrieve all available drivers
 // @Tags Driver
 // @Produce json
-// @Success 200 {array} models.DriverProfile
-// @Failure 400 {object} map[string]interface{}
+// @Success 200 {object} utils.APISuccessResponse{data=[]models.DriverProfile}
+//
+//	@Failure 400 {object} utils.APIErrorResponse{error=utils.ErrorDetail}
+//
 // @Router /drivers/available [get]
 func (h *DriverHandler) GetAvailableDrivers(c echo.Context) error {
 	vehicleType := c.QueryParam("vehicle_type")
@@ -130,10 +144,11 @@ func (h *DriverHandler) GetAvailableDrivers(c echo.Context) error {
 // @Tags Driver
 // @Accept json
 // @Produce json
+// @Security BearerAuth
 // @Param driver body validator.UpdateDriverRequest true "Updated driver profile"
-// @Success 200 {object} models.DriverProfile
-// @Failure 400 {object} map[string]interface{}
-// @Failure 404 {object} map[string]interface{}
+// @Success 200 {object} utils.APISuccessResponse{data=models.DriverProfile}
+// @Failure 400 {object} utils.APIErrorResponse{error=utils.ErrorDetail}
+// @Failure 404 {object} utils.APIErrorResponse{error=utils.ErrorNotFound}
 // @Router /drivers/profile [put]
 func (h *DriverHandler) UpdateDriverProfile(c echo.Context) error {
 	loggedInUserId := utils.CLaimJwt(c)
@@ -179,10 +194,11 @@ func (h *DriverHandler) UpdateDriverProfile(c echo.Context) error {
 // @Tags Driver
 // @Accept json
 // @Produce json
+// @Security BearerAuth
 // @Param driver body validator.UpdateDriverStatusRequest true "Updated driver status"
-// @Success 200 {object} models.DriverProfile
-// @Failure 400 {object} map[string]interface{}
-// @Failure 404 {object} map[string]interface{}
+// @Success 200 {object} utils.APISuccessResponse{data=models.DriverProfile}
+// @Failure 400 {object} utils.APIErrorResponse{error=utils.ErrorDetail}
+// @Failure 404 {object} utils.APIErrorResponse{error=utils.ErrorNotFound}
 // @Router /drivers/status [put]
 func (h *DriverHandler) UpdateDriverStatus(c echo.Context) error {
 	loggedInUserId := utils.CLaimJwt(c)
@@ -209,9 +225,10 @@ func (h *DriverHandler) UpdateDriverStatus(c echo.Context) error {
 // @Tags Driver
 // @Accept json
 // @Produce json
+// @Security BearerAuth
 // @Param driver body validator.UpdateDriverLocationRequest true "Updated driver current location"
-// @Success 200 {object} models.DriverProfile
-// @Failure 400 {object} map[string]interface{}
+// @Success 200 {object} utils.APISuccessResponse{data=models.DriverProfile}
+// @Failure 400 {object} utils.APIErrorResponse{error=utils.ErrorDetail}
 // @Router /drivers/location [put]
 func (h *DriverHandler) UpdateDriverLocation(c echo.Context) error {
 	loggedInUserId := utils.CLaimJwt(c)
@@ -234,10 +251,12 @@ func (h *DriverHandler) UpdateDriverLocation(c echo.Context) error {
 // @Tags Driver
 // @Accept json
 // @Produce json
-// @Success 200 {object} map[string]interface{}
-// @Failure 400 {object} map[string]interface{}
-// @Failure 404 {object} map[string]interface{}
-// @Router /drivers/profilee [delete]
+// @Security BearerAuth
+// @Success 200 {object} utils.APISuccessResponse{data=models.DriverProfile}
+// @Failure 400 {object} utils.APIErrorResponse{error=utils.ErrorDetail}
+// @Failure 404 {object} utils.APIErrorResponse{error=utils.ErrorNotFound}
+
+// @Router /drivers/profile [delete]
 func (h *DriverHandler) DeleteDriverProfile(c echo.Context) error {
 	loggedInUserId := utils.CLaimJwt(c)
 

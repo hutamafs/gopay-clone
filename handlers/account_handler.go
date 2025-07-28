@@ -30,6 +30,17 @@ func NewAccountHandler(accountService *services.AccountService, transactionServi
 	return &AccountHandler{accountService: accountService, transactionService: transactionService}
 }
 
+// CreateAccount godoc
+// @Summary Create a new wallet account
+// @Description Register a new wallet account
+// @Tags Account
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param account body validator.CreateAccountRequest true "Created account"
+// @Success 201 {object} models.Account
+// @Failure 400 {object} map[string]interface{}
+// @Router /accounts [post]
 func (h *AccountHandler) CreateAccount(c echo.Context) error {
 	var req validator.CreateAccountRequest
 	if err := utils.BindAndValidate(c, &req, validator.ValidateCreateAccount); err != nil {
@@ -49,6 +60,17 @@ func (h *AccountHandler) CreateAccount(c echo.Context) error {
 	return utils.SuccessResponse(c, http.StatusCreated, "Account created successfully", account)
 }
 
+// GetBalanceByAccount godoc
+// @Summary Get latest available balance from an account
+// @Description Retrieve wallet balance
+// @Param account_id path int true "Account ID"
+// @Tags Account
+// @Produce json
+// @Security BearerAuth
+// @Success 200 {object} models.Account
+// @Failure 400 {object} map[string]interface{}
+// @Failure 404 {object} map[string]interface{}
+// @Router /accounts [get]
 func (h *AccountHandler) GetBalanceByAccountId(c echo.Context) error {
 	accountId, err := strconv.Atoi(c.Param("account_id"))
 	if err != nil {
@@ -64,6 +86,20 @@ func (h *AccountHandler) GetBalanceByAccountId(c echo.Context) error {
 	return utils.SuccessResponse(c, http.StatusOK, "Balance for account fetched successfully", val)
 }
 
+// UpdateAccountDetail godoc
+// @Summary Update account detail e.g. name
+// @Description Update wallet account in this case the name
+// @Param account_id path int true "Account ID"
+// @Tags Account
+// @Produce json
+// @Security BearerAuth
+// @Param account body validator.UpdateAccountRequest true "Updated account name"
+// @Success 200 {object} models.Account
+// @Failure 400 {object} map[string]interface{}
+// @Failure 401 {object} map[string]interface{}
+// @Failure 403 {object} map[string]interface{}
+// @Failure 404 {object} map[string]interface{}
+// @Router /accounts/:account_id [put]
 func (h *AccountHandler) UpdateAccount(c echo.Context) error {
 	accountId, err := strconv.Atoi(c.Param("account_id"))
 	if err != nil {
@@ -88,6 +124,19 @@ func (h *AccountHandler) UpdateAccount(c echo.Context) error {
 	return utils.SuccessResponse(c, http.StatusOK, "Account updated successfully", account)
 }
 
+// GetAccountDetail godoc
+// @Summary Get account detail
+// @Description Get Account detail, the name, balance and user id
+// @Param account_id path int true "Account ID"
+// @Tags Account
+// @Produce json
+// @Security BearerAuth
+// @Success 200 {object} models.Account
+// @Failure 400 {object} map[string]interface{}
+// @Failure 401 {object} map[string]interface{}
+// @Failure 403 {object} map[string]interface{}
+// @Failure 404 {object} map[string]interface{}
+// @Router /accounts/:account_id/detail [get]
 func (h *AccountHandler) GetAccountDetail(c echo.Context) error {
 	id, err := strconv.Atoi(c.Param("account_id"))
 	if err != nil {
@@ -105,6 +154,17 @@ func (h *AccountHandler) GetAccountDetail(c echo.Context) error {
 	return utils.SuccessResponse(c, http.StatusOK, "Account detail fetched successfully", account)
 }
 
+// GetTransactionByAccounts godoc
+// @Summary Get latest transactions from account
+// @Description Get all latest. transaction from single account
+// @Param account_id path int true "Account ID"
+// @Tags Account
+// @Produce json
+// @Security BearerAuth
+// @Success 200 {array} models.Account
+// @Failure 400 {object} map[string]interface{}
+// @Failure 404 {object} map[string]interface{}
+// @Router /accounts/:account_id/transactions [get]
 func (h *AccountHandler) GetTransactionByAccounts(c echo.Context) error {
 	accountId, err := strconv.Atoi(c.Param("account_id"))
 	if err != nil {

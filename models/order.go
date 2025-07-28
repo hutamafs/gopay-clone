@@ -27,4 +27,5 @@ type Order struct {
 	DeliveryAddress string          `json:"delivery_address" gorm:"not null"`
 	TransactionID   *uint           `json:"transaction_id,omitempty"` // pointer because transaction will be created when payment is processed (usually when order moves from pending to confirmed)
 	Transaction     *Transaction    `json:"transaction,omitempty" gorm:"foreignKey:TransactionID"`
+	Timezone        string          `json:"timezone" gorm:"type:varchar(64);not null;default:'Asia/Jakarta'"` // Add this line
 }

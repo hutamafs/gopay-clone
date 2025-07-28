@@ -8,16 +8,38 @@ import (
 )
 
 type APIResponse struct {
-	Success bool         `json:"success"`
-	Message string       `json:"message"`
+	Success bool         `json:"success" example:"false"`
+	Message string       `json:"message" example:"message"`
 	Data    any          `json:"data,omitempty"`
 	Error   *ErrorDetail `json:"error,omitempty"`
 }
+type APIErrorResponse struct {
+	Success bool         `json:"success" example:"false"`
+	Message string       `json:"message" example:"the model struct not found"`
+	Error   *ErrorDetail `json:"error"`
+} // @name ErrorResponse
+
+type APISuccessResponse struct {
+	Success bool   `json:"success" example:"true"`
+	Message string `json:"message" example:"Operation successful"`
+	Data    any    `json:"data"`
+}
+type ErrorNotFound struct {
+	Code    string `json:"code,omitempty" example:"404"`
+	Message string `json:"message" example:"not found message"`
+	Type    string `json:"type,omitempty" example:"not found"`
+}
 
 type ErrorDetail struct {
-	Code    string `json:"code,omitempty"`
-	Message string `json:"message"`
-	Type    string `json:"type,omitempty"`
+	Code    string `json:"code,omitempty" example:"400"`
+	Message string `json:"message" example:"bad request message"`
+	Type    string `json:"type,omitempty" example:"bad request"`
+}
+
+type ErrorAuth struct {
+	Code    string `json:"code,omitempty" example:"401"`
+	Message string `json:"message" example:"need jwt"`
+	Type    string `json:"type,omitempty" example:"authentication error"`
 }
 
 func SuccessResponse(c echo.Context, statusCode int, message string, data any) error {
