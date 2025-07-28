@@ -28,8 +28,8 @@ func RegisterMerchantRoutes(api *echo.Group, db *config.Database, jwtMiddleware 
 
 		// menu item
 		merchants.POST("/:merchant_id/menu-item", menuHandler.CreateMenu)
-		merchants.GET("/:merchant_id/menu-item", menuHandler.GetAllMenus)
-		merchants.GET("/menu-item/:menu_id", menuHandler.GetMenuByID)
+		publicMerchantAPI.GET("/:merchant_id/menu-item", menuHandler.GetAllMenus)
+		publicMerchantAPI.GET("/menu-item/:menu_id", menuHandler.GetMenuByID)
 		merchants.PUT("/:merchant_id/menu-item/:menu_id", menuHandler.UpdateMenuItem)
 		merchants.DELETE("/:merchant_id/menu-item/:menu_id", menuHandler.DeleteMenuItem)
 
